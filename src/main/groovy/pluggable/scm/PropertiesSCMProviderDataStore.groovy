@@ -19,27 +19,39 @@ import pluggable.configuration.EnvVarProperty;
 */
 public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
 
+  private String propertiesFilePath = "";
+
+  public PropertiesSCMProviderDataStore(){
+    this.propertiesFilePath = new EnvVarProperty().getPropertiesLocation();
+  }
+
+  /**
+  * Set the properties file path.
+  *
+  * @param path - path to properties file.
+  */
+  public void setPropertiesLocation(String path){
+    this.propertiesFilePath = path;
+  }
+
   /**
   * Return a string representation, in an array of all the available SCM providers.
   * @return a string representation, in an array of all the available SCM providers.
   */
   public List<String> getAll(){
 
-    String PropertiesPath = EnvVarProperty.getPropertiesLocation()
-    final folder = new File(PropertiesPath);
-    List<String> ProviderList = new ArrayList<String>();
+    final folder = new File(this.propertiesFilePath);
+    List<String> providerList = new ArrayList<String>();
 
     for (final File fileEntry : folder.listFiles()) {
-        if (fileEntry.isDirectory()) {
-            continue;
-        } else {
+        if (!fileEntry.isDirectory()){
             String title = fileEntry.getName();
             title = title.replace(".properties", "");
-            ProviderList.add(title);
+            providerList.add(title);
         }
     }
 
-    return ProviderList;
+    return providerList;
   }
 
   /**
@@ -49,33 +61,28 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
   */
   public Properties get(String id){
 
-    String PropertiesPath = EnvVarProperty.getPropertiesLocation()
-
-    Properties ScmProperties = new Properties();
+    Properties scmProperties = new Properties();
     InputStream input = null;
 
     try {
 
-        private String file = PropertiesPath + id + ".properties";
+        String file = this.propertiesFilePath + id + ".properties";
         input = new FileInputStream(file);
 
         // Load the specified properties file
-        ScmProperties.load(input);
+        scmProperties.load(input);
 
     } catch (IOException ex) {
-        ex.printStackTrace();
+        throw ex;
     } finally {
       if (input != null) {
         try {
           input.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            throw ex;
         }
       }
     }
-
-    return ScmProperties;
-
+    return scmProperties;
   }
-
 }

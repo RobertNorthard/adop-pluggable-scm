@@ -4,15 +4,15 @@ package pluggable.scm;
 import java.util.Properties;
 
 /**
-*
+* The SCP provider data store specification.
 *
 * @author Robert Northard <robertnorthard@googlemail.com>
 */
 public interface SCMProviderDataStore {
 
   /**
-  * Return a string representation, in an array of all the available SCM providers.
-  * @return a string representation, in an array of all the available SCM providers.
+  * Return a string representation, in a collection of all the available SCM providers.
+  * @return a string representation, in a collection of all the available SCM providers.
   */
   public List<String> getAll();
 

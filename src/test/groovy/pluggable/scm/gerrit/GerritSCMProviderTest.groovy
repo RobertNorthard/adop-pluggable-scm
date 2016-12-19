@@ -17,5 +17,4 @@ public class GerritSCMProviderTest extends GroovyTestCase {
     GerritSCMProvider scmProvider = new GerritSCMProvider("10.0.0.1",22, GerritSCMProtocol.SSH, "ADOP Gerrit", "jenkins");
     assertEquals scmProvider.getScmUrl(), "ssh://jenkins@10.0.0.1:22/"
   }
-
 }

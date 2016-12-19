@@ -83,7 +83,10 @@ public class SCMProviderHandler {
     StringBuffer className = new StringBuffer("");
     String classPackageName = null;
 
-    // base condition - if directory return classes else files.
+    /*
+      base condition - if directory return classes else files to load
+      into the class loader.
+    */
     if (!directory.exists()) {
        return classes;
     }else{
