@@ -17,14 +17,33 @@ public class GerritSCMProvider implements SCMProvider {
   private final String scmGerritCloneUser = "";
   private final String scmGerritServerProfile = "";
 
+  /**
+  * Constructor for class GerritSCMProvider.
+  *
+  * @param scmUrl scm url e.g. 10.0.0.1, gerrit
+  * @param scmPort scm port
+  * @param scmProtocol scm clone protocol
+  * @param scmGerritProfile scm Gerrit profile
+  * @param scmGerritCloneUser scm gerrit clone user. Must be set of the SCM protocol is set to SSH.
+  */
   public GerritSCMProvider(String scmUrl, int scmPort,
     GerritSCMProtocol scmProtocol, String scmGerritServerProfile, String scmGerritCloneUser){
 
       this.scmUrl = scmUrl;
       this.scmPort = scmPort;
       this.scmProtocol = scmProtocol;
-      this.scmGerritServerProfile = scmGerritServerProfile;
-      this.scmGerritCloneUser = scmGerritCloneUser;
+
+      if (scmProtocol == GerritSCMProtocol.SSH && scmGerritCloneUser.equals("")){
+        throw new IllegalArgumentException("The Gerrit SCM clone user must be set when using the SSH protocol.");
+      }else{
+        this.scmGerritCloneUser = scmGerritCloneUser;
+      }
+
+      if(scmGerritServerProfile.equals("") || scmGerritServerProfile.equals(null) ){
+        throw new IllegalArgumentException("The Gerrit SCM profile name must be set to use this SCM provider.");
+      } else{
+        this.scmGerritServerProfile = scmGerritServerProfile;
+      }
   }
 
   /**
@@ -39,7 +58,7 @@ public class GerritSCMProvider implements SCMProvider {
   * Return SCM url.
   * @return SCM url for the provider.
   *     e.g. Gerrit-SSH  ssh://jenkins@10.0.0.0:22/
-  *          Gerrit-HTTP http://@10.0.0.0:80/
+  *          Gerrit-HTTP http://10.0.0.0:80/
   */
   public String getScmUrl(){
 
