@@ -4,6 +4,11 @@ package pluggable.scm;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+* SCP handler is responsible for dispatching get SCM provider requests to the correct
+* SCM provider factory.
+*
+*/
 public class SCMProviderHandler {
 
   private static String SCM_PROVIDER_FILE_EXTENSION = ".groovy"
@@ -30,10 +35,14 @@ public class SCMProviderHandler {
 
     Properties scmProviderProperties = scmProviderDataStore.get(scmProviderId);
 
+    if(scmProviderProperties == null){
+      throw IllegalArgumentException("SCM provider properties not found.")
+    }
+
     String scmProviderType = scmProviderProperties.getProperty("scm.type");
 
     if(scmProviderType == null || scmProviderType.equals("")){
-        throw new IllegalArgumentException("SCM Provider property, 'scm.type' must be specified.");
+        throw new IllegalArgumentException("SCM provider property, 'scm.type' must be specified.");
     }
 
     scmProviderClass = SCMProviderHandler
@@ -41,7 +50,7 @@ public class SCMProviderHandler {
                                             .findClasses(new File(""),""));
 
     if(scmProviderClass == null){
-        throw new IllegalArgumentException("SCM Provider for scm.type=" + scmProviderType + " cannot be found.");
+        throw new IllegalArgumentException("SCM provider for scm.type=" + scmProviderType + " cannot be found.");
     }
 
     scmProviderFactory = (SCMProviderFactory)scmProviderClass.newInstance();
@@ -91,7 +100,7 @@ public class SCMProviderHandler {
   * Find SCM provider with the specified provider type. Returns null is the SCM provider is not found.
   *
   * @param providerName SCM provider type.
-  * @return SCM provider with the specified provider type. Returns null is the SCM provider is not found.
+  * @return SCM provider with the specified provider type. Returns null if the SCM provider is not found.
   **/
   private static Class findScmProvider(String providerType, List<Class> classes){
     for (Class c : classes){
