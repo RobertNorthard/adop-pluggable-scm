@@ -10,15 +10,15 @@ import pluggable.scm.SCMProvider;
 */
 public class GerritSCMProvider implements SCMProvider {
 
-  private String scmProtocol = "";
-  private String scmPort = "";
-  private String scmUrl = "";
+  private final String scmUrl = "";
+  private final int scmPort = 0;
+  private final GerritSCMProtocol scmProtocol = null;
 
-  private String scmGerritCloneUser = "";
-  private String scmGerritServerProfile = "";
+  private final String scmGerritCloneUser = "";
+  private final String scmGerritServerProfile = "";
 
-  public GerritSCMProvider(String scmPort, String scmUrl,
-    String scmProtocol, String scmGerritServerProfile, String scmGerritCloneUser ){
+  public GerritSCMProvider(String scmUrl, int scmPort,
+    GerritSCMProtocol scmProtocol, String scmGerritServerProfile, String scmGerritCloneUser){
 
       this.scmUrl = scmUrl;
       this.scmPort = scmPort;
@@ -37,30 +37,37 @@ public class GerritSCMProvider implements SCMProvider {
 
   /**
   * Return SCM url.
-  * @return SCM url.
+  * @return SCM url for the provider.
+  *     e.g. Gerrit-SSH  ssh://jenkins@10.0.0.0:22/
+  *          Gerrit-HTTP http://@10.0.0.0:80/
   */
   public String getScmUrl(){
 
       StringBuffer url = new StringBuffer("")
 
-      url.append(this.scmProtocol + "://");
+      url.append(this.scmProtocol);
+      url.append("://");
 
       switch(this.scmProtocol){
-        case "ssh":
-          url.append(this.scmGerritCloneUser + "@");
+        case GerritSCMProtocol.SSH:
+          url.append(this.scmGerritCloneUser);
+          url.append("@");
           break;
 
-        case "http":
-        case "https":
-          // don't do anything
+        case GerritSCMProtocol.HTTP:
+        case GerritSCMProtocol.HTTPS:
+          //do nothing
           break;
 
         default:
-          throw new IllegalArgumentException("SCM Protocal type not supported.");
+          throw new IllegalArgumentException("SCM Protocol type not supported.");
           break;
       }
 
-      url.append(this.scmUrl + ":" + this.scmPort + "/");
+      url.append(this.scmUrl);
+      url.append(":");
+      url.append(this.scmPort);
+      url.append("/");
 
       return url;
   }
