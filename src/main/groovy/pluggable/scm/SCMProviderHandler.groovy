@@ -7,9 +7,10 @@ import java.util.ArrayList;
 import pluggable.configuration.EnvVarProperty;
 
 /**
-* SCP handler is responsible for dispatching get SCM provider requests to the correct
-* SCM provider factory.
+* The SCMProviderHandler is responsible for dispatching SCM provider
+* requests to the correctSCM provider factory.
 *
+* @author Robert Northard <robertnorthard@googlemail.com>
 */
 public class SCMProviderHandler {
 
@@ -63,54 +64,111 @@ public class SCMProviderHandler {
   }
 
   /**
-  * Return a collection of all classes in a directory and specified package.
+  * Return a collection of all classes in a directory and specified package by
+  * recursively searching.
   *
-  * @param directory directory to recursively search for class files.
-  * @param packageName Java package name to search.
-  * @return a collection of class files.
+  * @param directory - directory to recursively search for class files.
+  * @param packageName - Java package name to search.
+  * @return a collection of class files in the specified directory.
+            If the directory does not exist an empty collection is returned.
   **/
   private static List<Class> findClasses(File directory, String packageName) {
 
     ClassLoader classLoader = SCMProviderHandler.class.getClassLoader();
+
     List<Class> classes = new ArrayList<Class>();
 
+    File[] allFiles = null;
+    String fileName = null;
+    StringBuffer className = new StringBuffer("");
+    String classPackageName = null;
+
+    // base condition - if directory return classes else files.
     if (!directory.exists()) {
        return classes;
+    }else{
+      allFiles = directory.listFiles();
     }
-
-    File[] allFiles = directory.listFiles();
 
     for(File file: allFiles){
 
-      String fileName = file.getName();
+      fileName = file.getName();
 
+      /*
+        all class names start with packageName.
+        e.g. pluggable.scm.gerrit.GerritSCMProvider
+      */
+      className.append(packageName);
+      className.append(".");
+
+      // recursively looks for more files if directory else load classes.
       if (file.isDirectory()) {
-         classes.addAll(findClasses(file, packageName + "." + file.getName()));
+
+        className.append(fileName);
+
+         classes.addAll(
+            findClasses(file, className.toString()));
+
      } else if (fileName.endsWith(SCMProviderHandler.SCM_PROVIDER_FILE_EXTENSION)) {
 
-         String className = packageName + "." + fileName.substring(0, fileName.length() - SCMProviderHandler.SCM_PROVIDER_FILE_EXTENSION.length())
-         className = className.replace('/','.')
-                                .replaceFirst('.', '');
-         classes.add(Class.forName(className));
+        className.append(
+            fileName.substring(0,
+              fileName.length() - SCMProviderHandler.SCM_PROVIDER_FILE_EXTENSION.length()));
+
+        classPackageName = getPackageName(className.toString());
+
+         classes.add(
+           Class.forName(classPackageName));
      }
+     className = new StringBuffer("");
     }
     return classes;
   }
 
   /**
-  * Find SCM provider with the specified provider type. Returns null is the SCM provider is not found.
+  * Return a SCMProvider with the specified provider type.
+  * Returns null if the SCM provider is not found.
+  * This method assumes there is only one implementation of the SCM type.
   *
-  * @param providerName SCM provider type.
-  * @return SCM provider with the specified provider type. Returns null if the SCM provider is not found.
+  * @param providerName - SCM provider type.
+  * @return SCM provider with the specified provider type.
+  *         Returns null if the SCM provider is not found.
+  *
+  * @throws IllegalArgumentException
+  *         If provider type is null or not specified.
+  *         If collection of classes is null.
+  *
   **/
   private static Class findScmProvider(String providerType, List<Class> classes){
+
+    if(providerType == null || providerType.equals("")){
+      throw new IllegalArgumentException("Provider type must be specified.");
+    }
+
+    if(classes == null){
+      throw new IllegalArgumentException("A collection of classes must be provided.");
+    }
+
     for (Class foundClass : classes){
       if(foundClass.isAnnotationPresent(SCMProviderInfo.class)){
-        if(foundClass.getAnnotation(SCMProviderInfo.class).name().equals(providerType)){
+        if(foundClass.getAnnotation(SCMProviderInfo.class).type().equals(providerType)){
           return foundClass;
         }
       }
     }
     return null;
+  }
+
+  /**
+  * Utility method which converts file path name to a package name.
+  *
+  * @param pathName - pathName to convert to package name.
+  * @return a package name corresponding to the provided file path name.
+  *
+  */
+  private static String getPackageName(String pathName){
+    return pathName
+                .replace('/','.')
+                .replaceFirst('.', '');
   }
 }

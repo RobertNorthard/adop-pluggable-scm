@@ -11,13 +11,23 @@ enum GerritSCMProtocol {
     HTTP("http"),
     HTTPS("https")
 
-    private final String protocal = "";
+    private final String protocol = "";
 
-    public GerritSCMProtocol(String protocal) {
-        this.protocal = protocal;
+    /**
+    * Constructor got class GerritSCMProtocol.
+    *
+    * @param protocal a string representation of the protocol e.g. ssh, https
+    */
+    public GerritSCMProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
+    /**
+    * Return a string representation of the SCM protocol.
+    * @return a string representation of the SCM protocol.
+    */
+    @Override
     public String toString(){
-      return this.protocal;
+      return this.protocol;
     }
 }

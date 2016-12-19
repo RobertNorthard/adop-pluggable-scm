@@ -2,13 +2,23 @@
 package pluggable.scm;
 
 import java.lang.annotation.*;
+
 /**
-* Annoation to mark SCM providers.
+* Annotation to mark SCM providers.
+*
+* @author Robert Northard <robertnorthard@googlemail.com>
 */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface SCMProviderInfo {
 
-  String name();
+  /**
+  * Return a string representation of the SCM type implemented by the SCM
+  * provider.
+  *
+  * @return a string representation of the SCM type implemented by the SCM
+  *         provider.
+  */
+  String type();
 
 }

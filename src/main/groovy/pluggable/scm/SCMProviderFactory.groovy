@@ -3,13 +3,21 @@ package pluggable.scm;
 
 import java.util.Properties;
 
+/**
+* The SCM provider factory definition.
+* It is responsible for parsing the providers properties and instantiating
+* the correct SCM provider.
+*
+* @author Robert Northard <robertnorthard@googlemail.com>
+*/
 public interface SCMProviderFactory {
 
     /**
-    * Return a SCM Provider configured according to the provided SCM properties.
+    * A factory method which return a SCM Provider instantiated according
+    * to the provided SCM properties.
     *
     * @param scmProviderProperties - properties for the SCM provider.
-    * @return SCMProvider configured from the provided SCM properties.
+    * @return SCMProvider instantiated the provided SCM properties.
     **/
-    public abstract SCMProvider create(Properties scmProviderProperties);
+    public SCMProvider create(Properties scmProviderProperties);
 }

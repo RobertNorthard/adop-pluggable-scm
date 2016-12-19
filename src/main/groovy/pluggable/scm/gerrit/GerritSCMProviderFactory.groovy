@@ -6,16 +6,17 @@ import pluggable.scm.SCMProviderFactory;
 import pluggable.scm.SCMProviderInfo;
 
 /**
-* This class a Gerrit SCM Porivder factory class which is responsible for parsing the
-* providers properties and creating a GerritSCMProvider.
+* The Gerrit SCM factory class is responsible for parsing the
+* providers properties and instantiating a GerritSCMProvider.
 *
 * @author Robert Northard <robertnorthard@googlemail.com>
 */
-@SCMProviderInfo(name="gerrit")
+@SCMProviderInfo(type="gerrit")
 public class GerritSCMProviderFactory implements SCMProviderFactory {
 
   /**
-  * Return a SCM Provider configured according to the provided SCM properties.
+  * A factory method which return an SCM Provider instantiated with the
+  * the provided properties.
   *
   * @param scmProviderProperties - properties for the SCM provider.
   * @return SCMProvider configured from the provided SCM properties.
