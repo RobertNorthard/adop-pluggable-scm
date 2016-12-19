@@ -4,6 +4,8 @@ package pluggable.scm;
 import java.util.List;
 import java.util.ArrayList;
 
+import pluggable.configuration.EnvVarProperty;
+
 /**
 * SCP handler is responsible for dispatching get SCM provider requests to the correct
 * SCM provider factory.
@@ -29,6 +31,7 @@ public class SCMProviderHandler {
     Class<SCMProvider> scmProviderClass = null;
     SCMProviderFactory scmProviderFactory = null;
     SCMProvider scmProvider = null;
+    EnvVarProperty envVarProperty = new EnvVarProperty();
 
     // assume properties datastore by default
     SCMProviderDataStore scmProviderDataStore = new PropertiesSCMProviderDataStore();
@@ -47,7 +50,7 @@ public class SCMProviderHandler {
 
     scmProviderClass = SCMProviderHandler
                         .findScmProvider(scmProviderType, SCMProviderHandler
-                                            .findClasses(new File(""),""));
+                                            .findClasses(new File(envVarProperty.getPluggableSearchPath()),""));
 
     if(scmProviderClass == null){
         throw new IllegalArgumentException("SCM provider for scm.type=" + scmProviderType + " cannot be found.");
@@ -68,8 +71,8 @@ public class SCMProviderHandler {
   **/
   private static List<Class> findClasses(File directory, String packageName) {
 
-    List<Class> classes = new ArrayList<Class>();
     ClassLoader classLoader = SCMProviderHandler.class.getClassLoader();
+    List<Class> classes = new ArrayList<Class>();
 
     if (!directory.exists()) {
        return classes;
@@ -82,7 +85,6 @@ public class SCMProviderHandler {
       String fileName = file.getName();
 
       if (file.isDirectory()) {
-
          classes.addAll(findClasses(file, packageName + "." + file.getName()));
      } else if (fileName.endsWith(SCMProviderHandler.SCM_PROVIDER_FILE_EXTENSION)) {
 
@@ -92,7 +94,6 @@ public class SCMProviderHandler {
          classes.add(Class.forName(className));
      }
     }
-
     return classes;
   }
 
@@ -103,10 +104,10 @@ public class SCMProviderHandler {
   * @return SCM provider with the specified provider type. Returns null if the SCM provider is not found.
   **/
   private static Class findScmProvider(String providerType, List<Class> classes){
-    for (Class c : classes){
-      if(c.isAnnotationPresent(SCMProviderInfo.class)){
-        if(c.getAnnotation(SCMProviderInfo.class).name().equals(providerType)){
-          return c;
+    for (Class foundClass : classes){
+      if(foundClass.isAnnotationPresent(SCMProviderInfo.class)){
+        if(foundClass.getAnnotation(SCMProviderInfo.class).name().equals(providerType)){
+          return foundClass;
         }
       }
     }
