@@ -3,13 +3,15 @@ package pluggable.scm.gerrit;
 
 import pluggable.scm.SCMProvider;
 import pluggable.scm.SCMProviderFactory;
+import pluggable.scm.SCMProviderInfo;
 
 /**
 * This class a Gerrit SCM Porivder factory class which is responsible for parsing the
 * providers properties and creating a GerritSCMProvider.
-* 
+*
 * @author Robert Northard <robertnorthard@googlemail.com>
 */
+@SCMProviderInfo(name="gerrit")
 public class GerritSCMProviderFactory implements SCMProviderFactory {
 
   /**

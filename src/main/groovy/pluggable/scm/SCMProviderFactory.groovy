@@ -11,5 +11,5 @@ public interface SCMProviderFactory {
     * @param scmProviderProperties - properties for the SCM provider.
     * @return SCMProvider configured from the provided SCM properties.
     **/
-    public SCMProvider create(Properties scmProviderProperties);
+    public abstract SCMProvider create(Properties scmProviderProperties);
 }

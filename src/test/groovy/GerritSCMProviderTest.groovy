@@ -2,6 +2,10 @@
 import pluggable.scm.*;
 import pluggable.scm.gerrit.*;
 
+import java.lang.*;
+import java.lang.reflect.*;
+import java.util.Properties;
+
 public class GerritSCMProviderTest extends GroovyTestCase {
 
   public void testGetScmUrlHttp(){

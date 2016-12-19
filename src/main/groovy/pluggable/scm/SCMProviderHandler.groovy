@@ -1,19 +1,106 @@
 
 package pluggable.scm;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class SCMProviderHandler {
+
+  private static String SCM_PROVIDER_FILE_EXTENSION = ".groovy"
 
   /**
   * Return an implementation of SCM provider for the provided unique
-  *    SCM provider id.
+  *   SCM provider id. The method uses the SCM Provider data store to infer
+  *   the SCM providers configuration.
   * @param scmProviderId - the unique id of the SCM provider.
   * @return the infferred SCM provider for the provided unique SCM provider Id.
   **/
   public static SCMProvider getScmProvider(String scmProviderId) {
 
-        SCMProvider scmProvider = null;
-
-
-        return scmProvider;
+    if(scmProviderId == null || scmProviderId.equals("")){
+      throw new IllegalArgumentException("SCM provider id must be provided.")
     }
+
+    Class<SCMProvider> scmProviderClass = null;
+    SCMProviderFactory scmProviderFactory = null;
+    SCMProvider scmProvider = null;
+
+    // assume properties datastore by default
+    SCMProviderDataStore scmProviderDataStore = new PropertiesSCMProviderDataStore();
+
+    Properties scmProviderProperties = scmProviderDataStore.get(scmProviderId);
+
+    String scmProviderType = scmProviderProperties.getProperty("scm.type");
+
+    if(scmProviderType == null || scmProviderType.equals("")){
+        throw new IllegalArgumentException("SCM Provider property, 'scm.type' must be specified.");
+    }
+
+    scmProviderClass = SCMProviderHandler
+                        .findScmProvider(scmProviderType, SCMProviderHandler
+                                            .findClasses(new File(""),""));
+
+    if(scmProviderClass == null){
+        throw new IllegalArgumentException("SCM Provider for scm.type=" + scmProviderType + " cannot be found.");
+    }
+
+    scmProviderFactory = (SCMProviderFactory)scmProviderClass.newInstance();
+    scmProvider = scmProviderFactory.create(scmProviderProperties);
+
+    return scmProvider;
+  }
+
+  /**
+  * Return a collection of all classes in a directory and specified package.
+  *
+  * @param directory directory to recursively search for class files.
+  * @param packageName Java package name to search.
+  * @return a collection of class files.
+  **/
+  private static List<Class> findClasses(File directory, String packageName) {
+
+    List<Class> classes = new ArrayList<Class>();
+    ClassLoader classLoader = SCMProviderHandler.class.getClassLoader();
+
+    if (!directory.exists()) {
+       return classes;
+    }
+
+    File[] allFiles = directory.listFiles();
+
+    for(File file: allFiles){
+
+      String fileName = file.getName();
+
+      if (file.isDirectory()) {
+
+         classes.addAll(findClasses(file, packageName + "." + file.getName()));
+     } else if (fileName.endsWith(SCMProviderHandler.SCM_PROVIDER_FILE_EXTENSION)) {
+
+         String className = packageName + "." + fileName.substring(0, fileName.length() - SCMProviderHandler.SCM_PROVIDER_FILE_EXTENSION.length())
+         className = className.replace('/','.')
+                                .replaceFirst('.', '');
+         classes.add(Class.forName(className));
+     }
+    }
+
+    return classes;
+  }
+
+  /**
+  * Find SCM provider with the specified provider type. Returns null is the SCM provider is not found.
+  *
+  * @param providerName SCM provider type.
+  * @return SCM provider with the specified provider type. Returns null is the SCM provider is not found.
+  **/
+  private static Class findScmProvider(String providerType, List<Class> classes){
+    for (Class c : classes){
+      if(c.isAnnotationPresent(SCMProviderInfo.class)){
+        if(c.getAnnotation(SCMProviderInfo.class).name().equals(providerType)){
+          return c;
+        }
+      }
+    }
+    return null;
+  }
 }
