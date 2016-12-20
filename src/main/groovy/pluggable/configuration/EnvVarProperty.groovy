@@ -5,11 +5,12 @@ public class EnvVarProperty {
 
   private def bindings = null;
 
-  private static final EnvVarProperty singleton;
+  private static final Object lock = new Object();
+  private static volatile final EnvVarProperty singleton;
 
   public static EnvVarProperty getInstance(){
     if(bindings == null){
-      synchronized {
+      synchronized(lock) {
         EnvVarProperty.singleton = new EnvVarProperty()
       }
     }
