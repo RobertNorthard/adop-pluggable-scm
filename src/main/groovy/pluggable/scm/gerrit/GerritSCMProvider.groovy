@@ -116,7 +116,7 @@ public class GerritSCMProvider implements SCMProvider {
             git extras >> {
               remote{
                 url(this.getScmUrl() + projectName + "/" + repoName)
-                credentials(credential_id)
+                credentials(credentialId)
               }
               branch("*/"+ branchName)
             }
