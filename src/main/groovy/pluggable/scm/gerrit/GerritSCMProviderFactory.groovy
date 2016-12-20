@@ -30,7 +30,7 @@ public class GerritSCMProviderFactory implements SCMProviderFactory {
     int scmPort = Integer.parseInt(scmProviderProperties.getProperty("scm.port"));
 
     String scmGerritProfile = scmProviderProperties.getProperty("scm.gerrit.server.profile");
-    String scmGerritCloneUser = scmProviderProperties.getProperty("scm.gerrit.clone.user");
+    String scmGerritCloneUser = scmProviderProperties.getProperty("scm.gerrit.ssh.clone.user");
 
     scmProvider = new GerritSCMProvider(scmUrl, scmPort,GerritSCMProtocol.valueOf(scmProtocol.toUpperCase()), scmGerritProfile, scmGerritCloneUser);
 
