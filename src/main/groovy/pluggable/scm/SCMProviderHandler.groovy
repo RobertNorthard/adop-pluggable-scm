@@ -35,7 +35,6 @@ public class SCMProviderHandler {
     Class<SCMProvider> scmProviderClass = null;
     SCMProviderFactory scmProviderFactory = null;
     SCMProvider scmProvider = null;
-    EnvVarProperty envVarProperty = new EnvVarProperty();
 
     // assume properties datastore by default
     SCMProviderDataStore scmProviderDataStore = new PropertiesSCMProviderDataStore();
