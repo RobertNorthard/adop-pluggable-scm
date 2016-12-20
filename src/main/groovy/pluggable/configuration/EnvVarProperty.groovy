@@ -4,10 +4,10 @@ package pluggable.configuration;
 public class EnvVarProperty {
 
   public String getPluggableSearchPath(){
-      return System.getenv("SCM_PROVIDER_PLUGGABLE_PATH");
+      return "/var/jenkins_home/jobs/ExampleWorkspace/jobs/SCM_PLUGGABLE/jobs/Cartridge_Management/jobs/Load_Cartridge/workspace/src/main/groovy/";
   }
 
   public String getPropertiesLocation(){
-      return System.getenv("SCM_PROVIDER_PROPERTY_LOCATION");
+      return "/var/jenkins_home/jobs/ExampleWorkspace/jobs/SCM_PLUGGABLE/jobs/Cartridge_Management/jobs/Load_Cartridge/workspace/";
   }
 }
