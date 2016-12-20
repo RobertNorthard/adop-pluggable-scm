@@ -23,11 +23,14 @@ public class SCMProviderHandler {
   * @param scmProviderId - the unique id of the SCM provider.
   * @return the infferred SCM provider for the provided unique SCM provider Id.
   **/
-  public static SCMProvider getScmProvider(String scmProviderId) {
+  public static SCMProvider getScmProvider(String scmProviderId, def variableBindings) {
 
     if(scmProviderId == null || scmProviderId.equals("")){
       throw new IllegalArgumentException("SCM provider id must be provided.")
     }
+
+    EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
+    envVarProperty.setVariableBindings(variableBindings);
 
     Class<SCMProvider> scmProviderClass = null;
     SCMProviderFactory scmProviderFactory = null;
@@ -51,7 +54,7 @@ public class SCMProviderHandler {
 
     scmProviderClass = SCMProviderHandler
                         .findScmProvider(scmProviderType, SCMProviderHandler
-                                            .findClasses(new File(envVarProperty.getPluggableSearchPath()),""));
+                                            .findClasses(new File(envVarProperty.getPluggablePath()),""));
 
     if(scmProviderClass == null){
         throw new IllegalArgumentException("SCM provider for scm.type=" + scmProviderType + " cannot be found.");

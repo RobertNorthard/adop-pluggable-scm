@@ -22,7 +22,7 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
   private String propertiesFilePath = "";
 
   public PropertiesSCMProviderDataStore(){
-    this.propertiesFilePath = new EnvVarProperty().getPropertiesLocation();
+    this.propertiesFilePath = new EnvVarProperty().getPropertiesPath();
   }
 
   /**

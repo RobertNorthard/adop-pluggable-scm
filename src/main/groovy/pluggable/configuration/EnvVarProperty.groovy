@@ -3,11 +3,31 @@ package pluggable.configuration;
 
 public class EnvVarProperty {
 
-  public String getPluggableSearchPath(){
-      return "/var/jenkins_home/jobs/ExampleWorkspace/jobs/SCM_PLUGGABLE/jobs/Cartridge_Management/jobs/Load_Cartridge/workspace/src/main/groovy/";
+  private def bindings = null;
+
+  private static final EnvVarProperty singleton;
+
+  public static EnvVarProperty getInstance(){
+    if(bindings == null){
+      synchronized {
+        EnvVarProperty.singleton = new EnvVarProperty()
+      }
+    }
+
+    return EnvVarProperty.singleton;
   }
 
-  public String getPropertiesLocation(){
-      return "/var/jenkins_home/jobs/ExampleWorkspace/jobs/SCM_PLUGGABLE/jobs/Cartridge_Management/jobs/Load_Cartridge/workspace/";
+  private EnvVarProperty(){ }
+
+  public void setVariableBindings(def bindings){
+    this.bindings = bingings;
+  }
+
+  public String getPluggablePath(){
+      return this.bindings.SCM_PROVIDER_PLUGGABLE_PATH
+  }
+
+  public String getPropertiesPath(){
+      return this.bindings.SCM_PROVIDER_PROPERTY_LOCATION
   }
 }
