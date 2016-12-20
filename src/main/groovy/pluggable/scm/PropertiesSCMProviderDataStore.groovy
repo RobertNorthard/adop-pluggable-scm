@@ -22,7 +22,7 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
   private String propertiesFilePath = "";
 
   public PropertiesSCMProviderDataStore(){
-    this.propertiesFilePath = new EnvVarProperty().getPropertiesPath();
+    this.propertiesFilePath = EnvVarProperty.getInstance().getPropertiesPath();
   }
 
   /**
@@ -60,6 +60,10 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
   * @return properties object for the specified SCM provider id.
   */
   public Properties get(String id){
+
+    if(id == null || id.equals("")){
+        throw new IllegalArgumentException("SCM provider id cannot be empty or null");
+    }
 
     Properties scmProperties = new Properties();
     InputStream input = null;
