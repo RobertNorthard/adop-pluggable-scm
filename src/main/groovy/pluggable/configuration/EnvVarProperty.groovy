@@ -3,8 +3,8 @@ package pluggable.configuration;
 
 /**
 * A singleton class representing a EnvVarProperty object.
-* This class is responsible for store injected/binded
-* environment variables to used by the SCM pluggable library.
+* This class is responsible for storing injected/binded
+* environment variables to be used by the SCM pluggable library.
 *
 */
 public class EnvVarProperty {
@@ -21,7 +21,7 @@ public class EnvVarProperty {
   public static EnvVarProperty getInstance(){
     if(EnvVarProperty.singleton == null){
       synchronized(lock) {
-        EnvVarProperty.singleton = new EnvVarProperty()
+        EnvVarProperty.singleton = new EnvVarProperty();
       }
     }
 
@@ -39,6 +39,11 @@ public class EnvVarProperty {
   * @param variables - variables to store.
   */
   public void setVariableBindings(def variables){
+
+      if (variables != null){
+          throw new IllegalArgumentException("Binding variables cannot be null.");
+      }
+
       this.bindings = variables;
   }
 
@@ -50,6 +55,11 @@ public class EnvVarProperty {
   * path.
   */
   public String getPluggablePath(){
+
+      if (!this.hasProperty("SCM_PROVIDER_PLUGGABLE_PATH"))
+        throw new IllegalArgumentException(
+          "Property SCM_PROVIDER_PLUGGABLE_PATH does not exist.");
+
 
       if(!this.checkDirectoryExists(this.bindings.SCM_PROVIDER_PLUGGABLE_PATH)){
         throw new IllegalArgumentException(
@@ -68,12 +78,28 @@ public class EnvVarProperty {
   */
   public String getPropertiesPath(){
 
+      if (!this.hasProperty("SCM_PROVIDER_PROPERTIES_PATH"))
+      throw new IllegalArgumentException(
+        "Property SCM_PROVIDER_PROPERTIES_PATH does not exist.");
+
       if(!this.checkDirectoryExists(this.bindings.SCM_PROVIDER_PROPERTIES_PATH)){
         throw new IllegalArgumentException(
           "Invalid environment variable - SCM_PROVIDER_PROPERTIES_PATH value must be a valid directory.");
       }
 
-      return this.bindings.SCM_PROVIDER_PROPERTIES_PATH
+      return this.bindings.SCM_PROVIDER_PROPERTIES_PATH;
+  }
+
+  /**
+  * Return true if the env var property exists, else false if bindings is null
+  * or the property does not exist.
+  *
+  * @param propertyName - the name of the property to check exists.
+  * @return true if the env var property exists, else false if bindings is null
+  * or the property does not exist.
+  */
+  public boolean hasProperty(String propertyName){
+    return this.bindings != null && this.bindings.hasVariable(propertyName)
   }
 
   /**

@@ -4,7 +4,6 @@ package pluggable.scm.gerrit;
 /**
 * Set of named constants representing the supported Gerrit SCM protocols.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 enum GerritSCMProtocol {
     SSH("ssh"),

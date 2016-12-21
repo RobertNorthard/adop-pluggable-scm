@@ -4,7 +4,6 @@ package pluggable.scm;
 /**
 * This interfaces defines the specification of an SCMProvider.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 public interface SCMProvider {
 

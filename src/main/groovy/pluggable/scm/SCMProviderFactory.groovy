@@ -8,7 +8,6 @@ import java.util.Properties;
 * It is responsible for parsing the providers properties and instantiating
 * the correct SCM provider.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 public interface SCMProviderFactory {
 

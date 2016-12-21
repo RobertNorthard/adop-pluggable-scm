@@ -9,7 +9,6 @@ import pluggable.scm.SCMProviderInfo;
 * The Gerrit SCM factory class is responsible for parsing the
 * providers properties and instantiating a GerritSCMProvider.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 @SCMProviderInfo(type="gerrit")
 public class GerritSCMProviderFactory implements SCMProviderFactory {
@@ -25,14 +24,14 @@ public class GerritSCMProviderFactory implements SCMProviderFactory {
 
     GerritSCMProvider scmProvider = null;
 
-    String scmUrl = scmProviderProperties.getProperty("scm.url");
+    String scmHost = scmProviderProperties.getProperty("scm.host");
     String scmProtocol = scmProviderProperties.getProperty("scm.protocol");
     int scmPort = Integer.parseInt(scmProviderProperties.getProperty("scm.port"));
 
     String scmGerritProfile = scmProviderProperties.getProperty("scm.gerrit.server.profile");
     String scmGerritCloneUser = scmProviderProperties.getProperty("scm.gerrit.ssh.clone.user");
 
-    scmProvider = new GerritSCMProvider(scmUrl, scmPort,GerritSCMProtocol.valueOf(scmProtocol.toUpperCase()), scmGerritProfile, scmGerritCloneUser);
+    scmProvider = new GerritSCMProvider(scmHost, scmPort,GerritSCMProtocol.valueOf(scmProtocol.toUpperCase()), scmGerritProfile, scmGerritCloneUser);
 
     return scmProvider;
   }

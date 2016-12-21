@@ -15,23 +15,40 @@ import pluggable.configuration.EnvVarProperty;
 /**
 * A properties store-based implementation of the SCMProviderDataStore.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
 
   private String propertiesFilePath = "";
 
   public PropertiesSCMProviderDataStore(){
-    this.propertiesFilePath = EnvVarProperty.getInstance().getPropertiesPath();
+    try {
+      this.propertiesFilePath = EnvVarProperty.getInstance().getPropertiesPath();
+    } catch(IllegalArgumentException ex){
+      this.propertiesFilePath = "";
+    }
   }
 
   /**
   * Set the properties file path.
   *
   * @param path - path to properties file.
+  * @throws IllegalArgumentException
+  *         If path is null or an empty string.
+  *         If path is not a valid directory.
   */
   public void setPropertiesLocation(String path){
-    this.propertiesFilePath = path;
+
+    if(path == null || path.equals("")){
+      throw new IllegalArgumentException("Property datastore path cannot be null or an empty string.");
+    }
+
+    File directory = new File(path);
+
+    if(directory.exists() && directory.isDirectory()) {
+      this.propertiesFilePath = path;
+    }else{
+      throw new IllegalArgumentException(path + " is not a valid property datastore directory.");
+    }
   }
 
   /**

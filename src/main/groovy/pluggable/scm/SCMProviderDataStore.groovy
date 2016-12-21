@@ -6,7 +6,6 @@ import java.util.Properties;
 /**
 * The SCP provider data store specification.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 public interface SCMProviderDataStore {
 

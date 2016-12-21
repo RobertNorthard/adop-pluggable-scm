@@ -11,7 +11,6 @@ import pluggable.configuration.EnvVarProperty;
 * The SCMProviderHandler is responsible for dispatching SCM provider
 * requests to the correctSCM provider factory.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 public class SCMProviderHandler {
 

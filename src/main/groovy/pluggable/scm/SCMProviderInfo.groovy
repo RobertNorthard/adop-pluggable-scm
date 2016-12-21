@@ -6,7 +6,6 @@ import java.lang.annotation.*;
 /**
 * Annotation to mark SCM providers.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

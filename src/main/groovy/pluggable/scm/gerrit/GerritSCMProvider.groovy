@@ -6,7 +6,6 @@ import pluggable.scm.SCMProvider;
 /**
 * This class implements the Gerrit SCM Provider.
 *
-* @author Robert Northard <robertnorthard@googlemail.com>
 */
 public class GerritSCMProvider implements SCMProvider {
 
