@@ -63,8 +63,12 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
     for (final File fileEntry : folder.listFiles()) {
         if (!fileEntry.isDirectory()){
             String title = fileEntry.getName();
-            title = title.replace(".properties", "");
-            providerList.add(title);
+            Properties scmProperties = new Properties();
+            InputStream input = null;
+            input = new FileInputStream(title);
+            scmProperties.load(input);
+            String providerID = scmProperties.getProperty("scm.id");
+            providerList.add(providerID);
         }
     }
 
@@ -82,12 +86,32 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
         throw new IllegalArgumentException("SCM provider id cannot be empty or null");
     }
 
+    final folder = new File(this.propertiesFilePath);
     Properties scmProperties = new Properties();
     InputStream input = null;
+    String fileTitle = null;
+
+    // Iterate through all the files and find the one matching the right ID provided
+    for (final File fileEntry : folder.listFiles()) {
+        if (!fileEntry.isDirectory()){
+
+            String tempTitle = this.propertiesFilePath + fileEntry.getName();
+            Properties tempProperties = new Properties();
+            InputStream tempInput = null;
+            tempInput = new FileInputStream(tempTitle);
+            tempProperties.load(tempInput);
+            String providerID = tempProperties.getProperty("scm.id");
+            if(providerID.equals(id)) {
+              fileTitle = tempTitle;
+              break
+            }
+
+        }
+    }
 
     try {
 
-        String file = this.propertiesFilePath + id + ".properties";
+        String file = fileTitle;
         input = new FileInputStream(file);
 
         // Load the specified properties file

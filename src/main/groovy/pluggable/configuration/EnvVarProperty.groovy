@@ -40,7 +40,7 @@ public class EnvVarProperty {
   */
   public void setVariableBindings(def variables){
 
-      if (variables != null){
+      if (variables == null){
           throw new IllegalArgumentException("Binding variables cannot be null.");
       }
 
@@ -99,7 +99,7 @@ public class EnvVarProperty {
   * or the property does not exist.
   */
   public boolean hasProperty(String propertyName){
-    return this.bindings != null && this.bindings.hasVariable(propertyName)
+    return this.bindings != null && this.bindings.containsKey(propertyName)
   }
 
   /**
