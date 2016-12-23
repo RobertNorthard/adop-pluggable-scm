@@ -30,11 +30,12 @@ public class GerritSCMProvider implements SCMProvider {
   *         If Gerrit server profile is not set.
   */
   public GerritSCMProvider(String scmUrl, int scmPort,
-    GerritSCMProtocol scmProtocol, String scmGerritServerProfile, String scmGerritCloneUser){
+    GerritSCMProtocol scmProtocol, String scmGerritServerProfile, String scmGerritCloneUser, Boolean scmCodeReviewEnabled){
 
       this.scmUrl = scmUrl;
       this.scmPort = scmPort;
       this.scmProtocol = scmProtocol;
+      this.scmCodeReviewEnabled = scmCodeReviewEnabled;
 
       if (scmProtocol == GerritSCMProtocol.SSH
             && ( scmGerritCloneUser == null || scmGerritCloneUser.equals(""))){
@@ -56,6 +57,41 @@ public class GerritSCMProvider implements SCMProvider {
   */
   def String getScmGerritProfile(){
     return this.scmGerritServerProfile;
+  }
+
+
+  /**
+  * Helper class to convert string input into executable bash commands.
+  *
+  * @param command The bash command you want to execute input as a string
+  *
+  */
+  public class ExecuteShellCommand {
+
+  public String executeCommand(String command) {
+
+      StringBuffer output = new StringBuffer();
+
+      Process p;
+      try {
+          p = Runtime.getRuntime().exec(command);
+          p.waitFor();
+          BufferedReader reader = 
+                          new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+          String line = "";           
+          while ((line = reader.readLine())!= null) {
+              output.append(line + "\n");
+          }
+
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+
+      return output.toString();
+
+  }
+
   }
 
   /**
@@ -96,6 +132,82 @@ public class GerritSCMProvider implements SCMProvider {
       url.append("/");
 
       return url;
+  }
+
+  public createScmRepos(String workspace, String cartridgeFolder, String projectFolderName, String overwriteRepos) {
+
+    ExecuteShellCommand com = new ExecuteShellCommand()
+    String codeReview = null;
+    String permissions_repo = null;
+    String repo_namespace = null;
+    
+    private static String cartHome = "/cartridge"
+    private static String urlsFile = workspace + cartHome + "/src/urls.txt"
+
+    if (this.scmCodeReviewEnabled == "true"){
+      println("Adding review to permissions")
+      permissions_repo = projectFolderName + "/permissions-with-review"
+    } else {
+      permissions_repo = projectFolderName + "/permissions"
+    }
+
+    println(permissions_repo)
+
+
+    if (cartridgeFolder == ""){
+      println("Folder name not specified...")
+      repo_namespace = projectFolderName
+    } else {
+      println ("Folder name specified, changing project namespace value..")
+      repo_namespace = projectFolderName + "/" + cartridgeFolder
+    }
+
+    // Create repositories
+    String command1 = "cat " + urlsFile
+    List<String> repoList = new ArrayList<String>();
+    repoList = (com.executeCommand(command1).split("\\r?\\n"));
+
+    for(String repo: repoList) {
+        String repoName = repo.substring(repo.lastIndexOf("/") + 1, repo.indexOf(".git"));
+        target_repo_name= repo_namespace + "/" + repoName
+        int repo_exists=0;
+        
+        // Check if the repository already exists or not
+        String listCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit ls-projects --type code"
+        gerritRepoList = (com.executeCommand(listCommand).split("\\r?\\n"));
+        
+        for(String gerritRepo: gerritRepoList) {
+          if(gerritRepo.trim().contains(target_repo_name)) {
+             println("Found: " + target_repo_name);
+             repo_exists=1
+             break
+          }
+        }
+            
+        // If not, create it
+        if (repo_exists.equals(0)) {
+          String createCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit create-project --parent " + permissions_repo + " " + target_repo_name
+          com.executeCommand(createCommand)
+        } else{
+          println("Repository already exists, skipping create: " + target_repo_name)
+        }
+        
+        // Populate repository
+        String tempDir = workspace + "/tmp"
+        String cloneCommand = "git clone ssh://" + this.gerritUser + "@" + this.gerritEndpoint + ":" + this.gerritPort + "/" + target_repo_name + " " + tempDir
+        String gitDir = "--git-dir=" + tempDir + "/" + target_repo_name + "/.git"
+        String fetchCommand = "git " + gitDir + " remote add source " + repo + " && git " + gitDir + " fetch source"
+        com.executeCommand(cloneCommand)
+        com.executeCommand(fetchCommand)
+        if (overwriteRepos == "true"){
+          String pushCommand = "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*"
+          com.executeCommand(pushCommand)
+        } else {
+          String pushCommand = "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*"
+          com.executeCommand(pushCommand)
+        }
+        
+    }
   }
 
   /**
