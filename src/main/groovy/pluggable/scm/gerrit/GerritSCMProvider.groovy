@@ -15,6 +15,11 @@ public class GerritSCMProvider implements SCMProvider {
 
   private final String scmGerritCloneUser = "";
   private final String scmGerritServerProfile = "";
+  private final String scmCodeReviewEnabled = "";
+
+  private final String gerritEndpoint = "";
+  private final String gerritUser = "";
+  private final int gerritPort = 0;
 
   /**
   * Constructor for class GerritSCMProvider.
@@ -29,13 +34,18 @@ public class GerritSCMProvider implements SCMProvider {
   *         If SCM protocol is equal to GerritSCMProtocol.SSH and the Gerrit clone user has not been provided.
   *         If Gerrit server profile is not set.
   */
-  public GerritSCMProvider(String scmUrl, int scmPort,
-    GerritSCMProtocol scmProtocol, String scmGerritServerProfile, String scmGerritCloneUser, Boolean scmCodeReviewEnabled){
+  public GerritSCMProvider(String scmUrl, int scmPort, GerritSCMProtocol scmProtocol, 
+    String scmGerritServerProfile, String scmGerritCloneUser, String scmCodeReviewEnabled,
+    String gerritEndpoint, String gerritUser, int gerritPort){
 
       this.scmUrl = scmUrl;
       this.scmPort = scmPort;
       this.scmProtocol = scmProtocol;
       this.scmCodeReviewEnabled = scmCodeReviewEnabled;
+
+      this.gerritEndpoint = gerritEndpoint;
+      this.gerritUser = gerritUser;
+      this.gerritPort = gerritPort;
 
       if (scmProtocol == GerritSCMProtocol.SSH
             && ( scmGerritCloneUser == null || scmGerritCloneUser.equals(""))){
@@ -57,6 +67,47 @@ public class GerritSCMProvider implements SCMProvider {
   */
   def String getScmGerritProfile(){
     return this.scmGerritServerProfile;
+  }
+
+
+  /**
+  * Return Gerrit SCM URL.
+  * @return SCM url for the provider.
+  *     e.g. Gerrit-SSH  ssh://jenkins@10.0.0.0:22/
+  *          Gerrit-HTTP http://10.0.0.0:80/
+  *
+  * @throws IllegalArgumentException
+  *           If the SCM protocol type is not supported.
+  **/
+  public String getScmUrl(){
+
+      StringBuffer url = new StringBuffer("")
+
+      url.append(this.scmProtocol);
+      url.append("://");
+
+      switch(this.scmProtocol){
+        case GerritSCMProtocol.SSH:
+          url.append(this.scmGerritCloneUser);
+          url.append("@");
+          break;
+
+        case GerritSCMProtocol.HTTP:
+        case GerritSCMProtocol.HTTPS:
+          //do nothing
+          break;
+
+        default:
+          throw new IllegalArgumentException("SCM Protocol type not supported.");
+          break;
+      }
+
+      url.append(this.scmUrl);
+      url.append(":");
+      url.append(this.scmPort);
+      url.append("/");
+
+      return url;
   }
 
 
@@ -94,56 +145,24 @@ public class GerritSCMProvider implements SCMProvider {
 
   }
 
+
   /**
-  * Return Gerrit SCM URL.
-  * @return SCM url for the provider.
-  *     e.g. Gerrit-SSH  ssh://jenkins@10.0.0.0:22/
-  *          Gerrit-HTTP http://10.0.0.0:80/
-  *
-  * @throws IllegalArgumentException
-  *           If the SCM protocol type is not supported.
-  */
-  public String getScmUrl(){
-
-      StringBuffer url = new StringBuffer("")
-
-      url.append(this.scmProtocol);
-      url.append("://");
-
-      switch(this.scmProtocol){
-        case GerritSCMProtocol.SSH:
-          url.append(this.scmGerritCloneUser);
-          url.append("@");
-          break;
-
-        case GerritSCMProtocol.HTTP:
-        case GerritSCMProtocol.HTTPS:
-          //do nothing
-          break;
-
-        default:
-          throw new IllegalArgumentException("SCM Protocol type not supported.");
-          break;
-      }
-
-      url.append(this.scmUrl);
-      url.append(":");
-      url.append(this.scmPort);
-      url.append("/");
-
-      return url;
-  }
-
+  * Creates relevant repositories defined by your cartridge in your chosen SCM provider
+  * @param workspace Workspace of the cartridge loader job
+  * @param cartridgeFolder Folder where the cartridge is to be created
+  * @param projectFolderName Project namespace for your repositories
+  * @param overwriteRepos Whether the contents of your created repositories are over-written or not
+  **/
   public createScmRepos(String workspace, String cartridgeFolder, String projectFolderName, String overwriteRepos) {
 
     ExecuteShellCommand com = new ExecuteShellCommand()
-    String codeReview = null;
     String permissions_repo = null;
     String repo_namespace = null;
     
-    private static String cartHome = "/cartridge"
-    private static String urlsFile = workspace + cartHome + "/src/urls.txt"
+    String cartHome = "/cartridge"
+    String urlsFile = workspace + cartHome + "/src/urls.txt"
 
+    // Check if code review has been enabled
     if (this.scmCodeReviewEnabled == "true"){
       println("Adding review to permissions")
       permissions_repo = projectFolderName + "/permissions-with-review"
@@ -153,12 +172,12 @@ public class GerritSCMProvider implements SCMProvider {
 
     println(permissions_repo)
 
-
+    // Check if a folder is specified
     if (cartridgeFolder == ""){
       println("Folder name not specified...")
       repo_namespace = projectFolderName
     } else {
-      println ("Folder name specified, changing project namespace value..")
+      println("Folder name specified, changing project namespace value..")
       repo_namespace = projectFolderName + "/" + cartridgeFolder
     }
 
@@ -169,12 +188,12 @@ public class GerritSCMProvider implements SCMProvider {
 
     for(String repo: repoList) {
         String repoName = repo.substring(repo.lastIndexOf("/") + 1, repo.indexOf(".git"));
-        target_repo_name= repo_namespace + "/" + repoName
+        String target_repo_name= repo_namespace + "/" + repoName
         int repo_exists=0;
         
         // Check if the repository already exists or not
         String listCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit ls-projects --type code"
-        gerritRepoList = (com.executeCommand(listCommand).split("\\r?\\n"));
+        List<String> gerritRepoList = (com.executeCommand(listCommand).split("\\r?\\n"));
         
         for(String gerritRepo: gerritRepoList) {
           if(gerritRepo.trim().contains(target_repo_name)) {
@@ -194,10 +213,12 @@ public class GerritSCMProvider implements SCMProvider {
         
         // Populate repository
         String tempDir = workspace + "/tmp"
-        String cloneCommand = "git clone ssh://" + this.gerritUser + "@" + this.gerritEndpoint + ":" + this.gerritPort + "/" + target_repo_name + " " + tempDir
-        String gitDir = "--git-dir=" + tempDir + "/" + target_repo_name + "/.git"
-        String fetchCommand = "git " + gitDir + " remote add source " + repo + " && git " + gitDir + " fetch source"
+        String cloneCommand = "git clone ssh://" + this.gerritUser + "@" + this.gerritEndpoint + ":" + this.gerritPort + "/" + target_repo_name + " " + tempDir + "/" + repoName
+        String gitDir = "--git-dir=" + tempDir + "/" + repoName + "/.git"
+        String remoteCommand = "git " + gitDir + " remote add source " + repo
+        String fetchCommand = "git " + gitDir + " fetch source"
         com.executeCommand(cloneCommand)
+        com.executeCommand(remoteCommand)
         com.executeCommand(fetchCommand)
         if (overwriteRepos == "true"){
           String pushCommand = "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*"

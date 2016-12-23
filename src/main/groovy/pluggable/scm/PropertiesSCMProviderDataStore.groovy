@@ -57,7 +57,7 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
   */
   public List<String> getAll(){
 
-    final folder = new File(this.propertiesFilePath);
+    final folder = new File(this.propertiesFilePath + "/ScmProviders/");
     List<String> providerList = new ArrayList<String>();
 
     for (final File fileEntry : folder.listFiles()) {
@@ -86,7 +86,8 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
         throw new IllegalArgumentException("SCM provider id cannot be empty or null");
     }
 
-    final folder = new File(this.propertiesFilePath);
+    final folder = new File(this.propertiesFilePath + "/ScmProviders/");
+    Properties finalProperties = new Properties();
     Properties scmProperties = new Properties();
     InputStream input = null;
     String fileTitle = null;
@@ -95,7 +96,7 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
     for (final File fileEntry : folder.listFiles()) {
         if (!fileEntry.isDirectory()){
 
-            String tempTitle = this.propertiesFilePath + fileEntry.getName();
+            String tempTitle = this.propertiesFilePath + "/ScmProviders/" + fileEntry.getName();
             Properties tempProperties = new Properties();
             InputStream tempInput = null;
             tempInput = new FileInputStream(tempTitle);
@@ -117,6 +118,27 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
         // Load the specified properties file
         scmProperties.load(input);
 
+        Properties loaderProperties = new Properties();
+        String loaderID = scmProperties.getProperty("scm.loader.id");
+        final loaderFolder = new File(this.propertiesFilePath + "/CartridgeLoader/");
+        for (final File fileEntry : loaderFolder.listFiles()) {
+            if (!fileEntry.isDirectory()){
+                String tempTitle = this.propertiesFilePath + "/CartridgeLoader/" + fileEntry.getName();
+                Properties tempProperties = new Properties();
+                InputStream tempInput = null;
+                tempInput = new FileInputStream(tempTitle);
+                tempProperties.load(tempInput);
+                String tempID = tempProperties.getProperty("loader.id");
+                if(tempID.equals(loaderID)) {
+                  loaderProperties.putAll(tempProperties);
+                  break
+                }
+            }
+        }
+
+        finalProperties.putAll(scmProperties);
+        finalProperties.putAll(loaderProperties);
+
     } catch (IOException ex) {
         throw ex;
     } finally {
@@ -128,6 +150,6 @@ public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
         }
       }
     }
-    return scmProperties;
+    return finalProperties;
   }
 }
