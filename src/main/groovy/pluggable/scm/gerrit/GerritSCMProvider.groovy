@@ -158,7 +158,7 @@ public class GerritSCMProvider implements SCMProvider {
   * @param namespace Location in your SCM provider where your repositories will be created
   * @param overwriteRepos Whether the contents of your created repositories are over-written or not
   **/
-  public createScmRepos(String workspace, String repoNamespace, String overwriteRepos) {
+  public createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos) {
 
     ExecuteShellCommand com = new ExecuteShellCommand()
     String permissions_repo = null;
@@ -172,11 +172,10 @@ public class GerritSCMProvider implements SCMProvider {
     }
 
     if (codeReviewEnabled == "true"){
-      permissions_repo = this.gerritPermissions
-    } else {
       permissions_repo = this.gerritPermissionsWithReview
+    } else {
+      permissions_repo = this.gerritPermissions
     }
-
 
     // Create repositories
     String command1 = "cat " + urlsFile
