@@ -36,8 +36,11 @@ public class GerritSCMProviderFactory implements SCMProviderFactory {
     String gerritUser = scmProviderProperties.getProperty("gerrit.user");
     int gerritPort = Integer.parseInt(scmProviderProperties.getProperty("gerrit.port"));
 
+    String gerritPermissions = scmProviderProperties.getProperty("gerrit.permissions.path");
+    String gerritPermissionsWithReview = scmProviderProperties.getProperty("gerrit.permissions.with_review.path");
+
     scmProvider = new GerritSCMProvider(scmHost, scmPort, GerritSCMProtocol.valueOf(scmProtocol.toUpperCase()), scmGerritProfile, 
-      scmGerritCloneUser, scmCodeReviewEnabled, gerritEndpoint, gerritUser, gerritPort);
+      scmGerritCloneUser, scmCodeReviewEnabled, gerritEndpoint, gerritUser, gerritPort, gerritPermissions, gerritPermissionsWithReview);
 
     return scmProvider;
   }

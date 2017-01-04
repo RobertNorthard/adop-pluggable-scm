@@ -21,6 +21,9 @@ public class GerritSCMProvider implements SCMProvider {
   private final String gerritUser = "";
   private final int gerritPort = 0;
 
+  private final String gerritPermissions = "";
+  private final String gerritPermissionsWithReview = "";
+
   /**
   * Constructor for class GerritSCMProvider.
   *
@@ -36,7 +39,8 @@ public class GerritSCMProvider implements SCMProvider {
   */
   public GerritSCMProvider(String scmUrl, int scmPort, GerritSCMProtocol scmProtocol, 
     String scmGerritServerProfile, String scmGerritCloneUser, String scmCodeReviewEnabled,
-    String gerritEndpoint, String gerritUser, int gerritPort){
+    String gerritEndpoint, String gerritUser, int gerritPort,
+    String gerritPermissions, String gerritPermissionsWithReview){
 
       this.scmUrl = scmUrl;
       this.scmPort = scmPort;
@@ -46,6 +50,8 @@ public class GerritSCMProvider implements SCMProvider {
       this.gerritEndpoint = gerritEndpoint;
       this.gerritUser = gerritUser;
       this.gerritPort = gerritPort;
+      this.gerritPermissions = gerritPermissions;
+      this.gerritPermissionsWithReview = gerritPermissionsWithReview;
 
       if (scmProtocol == GerritSCMProtocol.SSH
             && ( scmGerritCloneUser == null || scmGerritCloneUser.equals(""))){
@@ -161,13 +167,16 @@ public class GerritSCMProvider implements SCMProvider {
     String urlsFile = workspace + cartHome + "/src/urls.txt"
 
     // Check if code review has been enabled
-    if (this.scmCodeReviewEnabled == "true"){
-      println("Adding review to permissions")
-      permissions_repo = projectFolderName + "/permissions-with-review"
-    } else {
-      permissions_repo = projectFolderName + "/permissions"
+    if(codeReviewEnabled == "true" && this.scmCodeReviewEnabled == "false"){
+      throw new IllegalArgumentException("You have tried to use code review however it is not supported for your chosen SCM provider.");
     }
-    
+
+    if (codeReviewEnabled == "true"){
+      permissions_repo = this.gerritPermissions
+    } else {
+      permissions_repo = this.gerritPermissionsWithReview
+    }
+
 
     // Create repositories
     String command1 = "cat " + urlsFile
