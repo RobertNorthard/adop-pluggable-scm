@@ -149,15 +149,13 @@ public class GerritSCMProvider implements SCMProvider {
   /**
   * Creates relevant repositories defined by your cartridge in your chosen SCM provider
   * @param workspace Workspace of the cartridge loader job
-  * @param cartridgeFolder Folder where the cartridge is to be created
-  * @param projectFolderName Project namespace for your repositories
+  * @param namespace Location in your SCM provider where your repositories will be created
   * @param overwriteRepos Whether the contents of your created repositories are over-written or not
   **/
-  public createScmRepos(String workspace, String cartridgeFolder, String projectFolderName, String overwriteRepos) {
+  public createScmRepos(String workspace, String repoNamespace, String overwriteRepos) {
 
     ExecuteShellCommand com = new ExecuteShellCommand()
     String permissions_repo = null;
-    String repo_namespace = null;
     
     String cartHome = "/cartridge"
     String urlsFile = workspace + cartHome + "/src/urls.txt"
@@ -169,17 +167,7 @@ public class GerritSCMProvider implements SCMProvider {
     } else {
       permissions_repo = projectFolderName + "/permissions"
     }
-
-    println(permissions_repo)
-
-    // Check if a folder is specified
-    if (cartridgeFolder == ""){
-      println("Folder name not specified...")
-      repo_namespace = projectFolderName
-    } else {
-      println("Folder name specified, changing project namespace value..")
-      repo_namespace = projectFolderName + "/" + cartridgeFolder
-    }
+    
 
     // Create repositories
     String command1 = "cat " + urlsFile
@@ -188,7 +176,7 @@ public class GerritSCMProvider implements SCMProvider {
 
     for(String repo: repoList) {
         String repoName = repo.substring(repo.lastIndexOf("/") + 1, repo.indexOf(".git"));
-        String target_repo_name= repo_namespace + "/" + repoName
+        String target_repo_name= repoNamespace + "/" + repoName
         int repo_exists=0;
         
         // Check if the repository already exists or not
