@@ -3,6 +3,8 @@ package pluggable.scm.gerrit;
 
 import pluggable.scm.SCMProvider;
 
+import pluggable.configuration.EnvVarProperty;
+
 /**
 * This class implements the Gerrit SCM Provider.
 *
@@ -158,13 +160,17 @@ public class GerritSCMProvider implements SCMProvider {
   * @param namespace Location in your SCM provider where your repositories will be created
   * @param overwriteRepos Whether the contents of your created repositories are over-written or not
   **/
-  public createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos) {
+  public createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos, def variableBindings) {
 
     ExecuteShellCommand com = new ExecuteShellCommand()
     String permissions_repo = null;
+    String permissions_repo_temp = null;
     
     String cartHome = "/cartridge"
     String urlsFile = workspace + cartHome + "/src/urls.txt"
+
+    EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
+    envVarProperty.setVariableBindings(variableBindings);
 
     // Check if code review has been enabled
     if(codeReviewEnabled == "true" && this.scmCodeReviewEnabled == "false"){
@@ -172,10 +178,11 @@ public class GerritSCMProvider implements SCMProvider {
     }
 
     if (codeReviewEnabled == "true"){
-      permissions_repo = this.gerritPermissionsWithReview
+      permissions_repo_temp = this.gerritPermissionsWithReview
     } else {
-      permissions_repo = this.gerritPermissions
+      permissions_repo_temp = this.gerritPermissions
     }
+    permissions_repo = envVarProperty.returnValue(permissions_repo_temp);
 
     // Create repositories
     String command1 = "cat " + urlsFile
@@ -193,7 +200,7 @@ public class GerritSCMProvider implements SCMProvider {
         
         for(String gerritRepo: gerritRepoList) {
           if(gerritRepo.trim().contains(target_repo_name)) {
-             println("Found: " + target_repo_name);
+             envVarProperty.getLogger().println("[INFO] - Found: " + target_repo_name);
              repo_exists=1
              break
           }
@@ -203,8 +210,9 @@ public class GerritSCMProvider implements SCMProvider {
         if (repo_exists.equals(0)) {
           String createCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit create-project --parent " + permissions_repo + " " + target_repo_name
           com.executeCommand(createCommand)
+          envVarProperty.getLogger().println("[INFO] - Creating repository in Gerrit: " + target_repo_name);
         } else{
-          println("Repository already exists, skipping create: " + target_repo_name)
+          envVarProperty.getLogger().println("[INFO] - Repository already exists, skipping create: : " + target_repo_name);
         }
         
         // Populate repository

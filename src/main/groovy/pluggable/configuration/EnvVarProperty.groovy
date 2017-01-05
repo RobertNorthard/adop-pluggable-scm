@@ -1,6 +1,9 @@
 
 package pluggable.configuration;
 
+import java.util.regex.*;
+
+
 /**
 * A singleton class representing a EnvVarProperty object.
 * This class is responsible for storing injected/binded
@@ -88,6 +91,40 @@ public class EnvVarProperty {
       }
 
       return this.bindings.SCM_PROVIDER_PROPERTIES_PATH;
+  }
+
+  /**
+  * Returns a string where all environment variable keys pre-pended with "$" are replaced
+  * with their literal values
+  *
+  * @return a string with environment variable keys replaced with values.
+  */
+  public String returnValue(String keyString){
+  
+      
+      String intermediateString = keyString;
+
+      String pattern1 = '${';
+      String pattern2 = '}';
+      String pattern3 = '$';
+
+      Pattern p1 = Pattern.compile(Pattern.quote(pattern1) + "([A-Za-z0-9_-]+)" + Pattern.quote(pattern2));
+      Matcher m1 = p1.matcher(intermediateString);
+      if (m1.find()) {
+        String temp = this.bindings.get(m1.group(1))
+        intermediateString = intermediateString.replace(pattern1 + m1.group(1) + pattern2, temp)
+      }
+
+      String tokenisedString = intermediateString;
+
+      Pattern p2 = Pattern.compile(Pattern.quote(pattern3) + "([A-Za-z0-9_-]+)");
+      Matcher m2 = p2.matcher(tokenisedString);
+      if (m2.find()) {
+        String temp = this.bindings.get(m2.group(1))
+        tokenisedString = tokenisedString.replace(pattern3 + m2.group(1), temp)
+      }
+
+      return tokenisedString;
   }
 
   /**
