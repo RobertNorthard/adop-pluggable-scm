@@ -220,7 +220,7 @@ public class GerritSCMProvider implements SCMProvider {
                 url(this.getScmUrl() + projectName + "/" + repoName)
                 credentials(credentialId)
               }
-              branch("*/"+ branchName)
+              branch(branchName)
             }
         }
     }
