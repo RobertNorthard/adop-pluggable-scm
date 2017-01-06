@@ -3,12 +3,10 @@ package pluggable.configuration;
 
 import java.util.regex.*;
 
-
 /**
 * A singleton class representing a EnvVarProperty object.
 * This class is responsible for storing injected/binded
 * environment variables to be used by the SCM pluggable library.
-*
 */
 public class EnvVarProperty {
 
@@ -100,8 +98,7 @@ public class EnvVarProperty {
   * @return a string with environment variable keys replaced with values.
   */
   public String returnValue(String keyString){
-  
-      
+
       String intermediateString = keyString;
 
       String pattern1 = '${';

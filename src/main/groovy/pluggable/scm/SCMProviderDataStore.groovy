@@ -5,7 +5,6 @@ import java.util.Properties;
 
 /**
 * The SCP provider data store specification.
-*
 */
 public interface SCMProviderDataStore {
 

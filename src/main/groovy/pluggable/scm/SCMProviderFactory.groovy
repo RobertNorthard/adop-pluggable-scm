@@ -7,7 +7,6 @@ import java.util.Properties;
 * The SCM provider factory definition.
 * It is responsible for parsing the providers properties and instantiating
 * the correct SCM provider.
-*
 */
 public interface SCMProviderFactory {
 

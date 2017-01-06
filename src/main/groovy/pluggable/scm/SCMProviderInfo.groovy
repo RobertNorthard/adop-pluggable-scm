@@ -5,7 +5,6 @@ import java.lang.annotation.*;
 
 /**
 * Annotation to mark SCM providers.
-*
 */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

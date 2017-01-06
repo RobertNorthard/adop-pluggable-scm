@@ -8,7 +8,6 @@ import pluggable.scm.helpers.ExecuteShellCommand;
 
 /**
 * This class implements the Gerrit SCM Provider.
-*
 */
 public class GerritSCMProvider implements SCMProvider {
 
@@ -162,6 +161,7 @@ public class GerritSCMProvider implements SCMProvider {
         String listCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit ls-projects --type code"
         envVarProperty.getLogger().println("[INFO] - list command " +  listCommand);
         List<String> gerritRepoList = (com.executeCommand(listCommand).split("\\r?\\n"));
+        envVarProperty.getLogger().println("[INFO] -  command results " +  com.executeCommand(listCommand));
         envVarProperty.getLogger().println("[INFO] - list command " +  gerritRepoList);
 
         for(String gerritRepo: gerritRepoList) {

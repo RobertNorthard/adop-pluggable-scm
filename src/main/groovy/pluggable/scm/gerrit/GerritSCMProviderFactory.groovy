@@ -8,7 +8,6 @@ import pluggable.scm.SCMProviderInfo;
 /**
 * The Gerrit SCM factory class is responsible for parsing the
 * providers properties and instantiating a GerritSCMProvider.
-*
 */
 @SCMProviderInfo(type="gerrit")
 public class GerritSCMProviderFactory implements SCMProviderFactory {

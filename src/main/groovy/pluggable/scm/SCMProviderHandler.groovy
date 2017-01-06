@@ -10,7 +10,6 @@ import pluggable.configuration.EnvVarProperty;
 /**
 * The SCMProviderHandler is responsible for dispatching SCM provider
 * requests to the correctSCM provider factory.
-*
 */
 public class SCMProviderHandler {
 
@@ -176,6 +175,7 @@ public class SCMProviderHandler {
 
   /**
   * Utility method which converts file path name to a package name.
+  * e.g. pluggable/scm/helpers to pluggable.scm.helpers.
   *
   * @param pathName - pathName to convert to package name.
   * @return a package name corresponding to the provided file path name.

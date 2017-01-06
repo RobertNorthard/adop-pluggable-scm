@@ -3,7 +3,6 @@ package pluggable.scm.gerrit;
 
 /**
 * Set of named constants representing the supported Gerrit SCM protocols.
-*
 */
 enum GerritSCMProtocol {
     SSH("ssh"),

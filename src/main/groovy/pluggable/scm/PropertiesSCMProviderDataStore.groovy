@@ -11,10 +11,8 @@ import java.io.InputStream;
 
 import pluggable.configuration.EnvVarProperty;
 
-
 /**
 * A properties store-based implementation of the SCMProviderDataStore.
-*
 */
 public class PropertiesSCMProviderDataStore implements SCMProviderDataStore {
 

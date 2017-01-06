@@ -3,7 +3,6 @@ package pluggable.scm.helpers;
 
 /**
 * Helper class to convert string input into executable bash commands.
-*
 */
 public class ExecuteShellCommand {
 
@@ -15,8 +14,8 @@ public class ExecuteShellCommand {
   */
   public String executeCommand(String command) {
 
-      if (command == null){
-        throw new IllegalArgumentException("Command cannot be null.")
+      if (command == null || command.equals("")){
+        throw new IllegalArgumentException("A command must be provided.")
       }
 
       StringBuffer output = new StringBuffer();
@@ -25,17 +24,20 @@ public class ExecuteShellCommand {
       try {
           p = Runtime.getRuntime().exec(command);
           p.waitFor();
+
           BufferedReader reader =
-                          new BufferedReader(new InputStreamReader(p.getInputStream()));
+              new BufferedReader(
+                new InputStreamReader(p.getInputStream()));
 
           String line = "";
 
-          while ((line = reader.readLine())!= null) {
+          while ((line = reader.readLine()) != null) {
               output.append(line + "\n");
           }
       } catch (Exception ex) {
           throw ex;
       }
+
       return output.toString();
   }
 }
