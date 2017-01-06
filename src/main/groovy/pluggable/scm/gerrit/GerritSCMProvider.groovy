@@ -11,7 +11,7 @@ import pluggable.configuration.EnvVarProperty;
 */
 public class GerritSCMProvider implements SCMProvider {
 
-  private final String scmUrl = "";
+  private final String scmHost = "";
   private final int scmPort = 0;
   private final GerritSCMProtocol scmProtocol = null;
 
@@ -29,7 +29,7 @@ public class GerritSCMProvider implements SCMProvider {
   /**
   * Constructor for class GerritSCMProvider.
   *
-  * @param scmUrl scm url e.g. 10.0.0.1, gerrit
+  * @param scmHost scm url e.g. 10.0.0.1, gerrit.adop.example
   * @param scmPort scm port
   * @param scmProtocol scm clone protocol
   * @param scmGerritProfile scm Gerrit profile
@@ -39,12 +39,12 @@ public class GerritSCMProvider implements SCMProvider {
   *         If SCM protocol is equal to GerritSCMProtocol.SSH and the Gerrit clone user has not been provided.
   *         If Gerrit server profile is not set.
   */
-  public GerritSCMProvider(String scmUrl, int scmPort, GerritSCMProtocol scmProtocol, 
+  public GerritSCMProvider(String scmHost, int scmPort, GerritSCMProtocol scmProtocol,
     String scmGerritServerProfile, String scmGerritCloneUser, String scmCodeReviewEnabled,
     String gerritEndpoint, String gerritUser, int gerritPort,
     String gerritPermissions, String gerritPermissionsWithReview){
 
-      this.scmUrl = scmUrl;
+      this.scmHost = scmHost;
       this.scmPort = scmPort;
       this.scmProtocol = scmProtocol;
       this.scmCodeReviewEnabled = scmCodeReviewEnabled;
@@ -110,7 +110,7 @@ public class GerritSCMProvider implements SCMProvider {
           break;
       }
 
-      url.append(this.scmUrl);
+      url.append(this.scmHost);
       url.append(":");
       url.append(this.scmPort);
       url.append("/");
@@ -135,10 +135,10 @@ public class GerritSCMProvider implements SCMProvider {
       try {
           p = Runtime.getRuntime().exec(command);
           p.waitFor();
-          BufferedReader reader = 
+          BufferedReader reader =
                           new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-          String line = "";           
+          String line = "";
           while ((line = reader.readLine())!= null) {
               output.append(line + "\n");
           }
@@ -165,7 +165,7 @@ public class GerritSCMProvider implements SCMProvider {
     ExecuteShellCommand com = new ExecuteShellCommand()
     String permissions_repo = null;
     String permissions_repo_temp = null;
-    
+
     String cartHome = "/cartridge"
     String urlsFile = workspace + cartHome + "/src/urls.txt"
 
