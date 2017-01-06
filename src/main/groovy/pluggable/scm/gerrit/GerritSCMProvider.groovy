@@ -4,6 +4,7 @@ package pluggable.scm.gerrit;
 import pluggable.scm.SCMProvider;
 
 import pluggable.configuration.EnvVarProperty;
+import pluggable.scm.helpers.ExecuteShellCommand;
 
 /**
 * This class implements the Gerrit SCM Provider.
@@ -118,49 +119,13 @@ public class GerritSCMProvider implements SCMProvider {
       return url;
   }
 
-
-  /**
-  * Helper class to convert string input into executable bash commands.
-  *
-  * @param command The bash command you want to execute input as a string
-  *
-  */
-  public class ExecuteShellCommand {
-
-  public String executeCommand(String command) {
-
-      StringBuffer output = new StringBuffer();
-
-      Process p;
-      try {
-          p = Runtime.getRuntime().exec(command);
-          p.waitFor();
-          BufferedReader reader =
-                          new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-          String line = "";
-          while ((line = reader.readLine())!= null) {
-              output.append(line + "\n");
-          }
-
-      } catch (Exception e) {
-          e.printStackTrace();
-      }
-
-      return output.toString();
-
-  }
-
-  }
-
-
   /**
   * Creates relevant repositories defined by your cartridge in your chosen SCM provider
   * @param workspace Workspace of the cartridge loader job
   * @param namespace Location in your SCM provider where your repositories will be created
   * @param overwriteRepos Whether the contents of your created repositories are over-written or not
   **/
-  public createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos, def variableBindings) {
+  public void createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos) {
 
     ExecuteShellCommand com = new ExecuteShellCommand()
     String permissions_repo = null;
@@ -170,7 +135,6 @@ public class GerritSCMProvider implements SCMProvider {
     String urlsFile = workspace + cartHome + "/src/urls.txt"
 
     EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
-    envVarProperty.setVariableBindings(variableBindings);
 
     // Check if code review has been enabled
     if(codeReviewEnabled == "true" && this.scmCodeReviewEnabled == "false"){
@@ -193,11 +157,13 @@ public class GerritSCMProvider implements SCMProvider {
         String repoName = repo.substring(repo.lastIndexOf("/") + 1, repo.indexOf(".git"));
         String target_repo_name= repoNamespace + "/" + repoName
         int repo_exists=0;
-        
+
         // Check if the repository already exists or not
         String listCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit ls-projects --type code"
+        envVarProperty.getLogger().println("[INFO] - list command " +  listCommand);
         List<String> gerritRepoList = (com.executeCommand(listCommand).split("\\r?\\n"));
-        
+        envVarProperty.getLogger().println("[INFO] - list command " +  gerritRepoList);
+
         for(String gerritRepo: gerritRepoList) {
           if(gerritRepo.trim().contains(target_repo_name)) {
              envVarProperty.getLogger().println("[INFO] - Found: " + target_repo_name);
@@ -205,7 +171,7 @@ public class GerritSCMProvider implements SCMProvider {
              break
           }
         }
-            
+
         // If not, create it
         if (repo_exists.equals(0)) {
           String createCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit create-project --parent " + permissions_repo + " " + target_repo_name
@@ -214,7 +180,7 @@ public class GerritSCMProvider implements SCMProvider {
         } else{
           envVarProperty.getLogger().println("[INFO] - Repository already exists, skipping create: : " + target_repo_name);
         }
-        
+
         // Populate repository
         String tempDir = workspace + "/tmp"
         String cloneCommand = "git clone ssh://" + this.gerritUser + "@" + this.gerritEndpoint + ":" + this.gerritPort + "/" + target_repo_name + " " + tempDir + "/" + repoName
@@ -231,7 +197,7 @@ public class GerritSCMProvider implements SCMProvider {
           String pushCommand = "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*"
           com.executeCommand(pushCommand)
         }
-        
+
     }
   }
 
