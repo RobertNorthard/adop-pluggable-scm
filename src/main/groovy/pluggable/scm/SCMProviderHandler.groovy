@@ -46,7 +46,7 @@ public class SCMProviderHandler {
     Logger.info("Found properties datastore for SCM provider id: " + scmProviderId);
 
     if(scmProviderProperties == null){
-      throw IllegalArgumentException("[INFO] - SCM provider properties not found.")
+      throw IllegalArgumentException("SCM provider properties not found.")
     }
 
     String scmProviderType = scmProviderProperties.getProperty("scm.type");
@@ -64,7 +64,7 @@ public class SCMProviderHandler {
                                             .findClasses(new File(envVarProperty.getPluggablePath()),""));
 
     if(scmProviderClass == null){
-        throw new IllegalArgumentException("[INFO] - SCM provider for scm.type=" + scmProviderType + " cannot be found.");
+        throw new IllegalArgumentException("SCM provider for scm.type=" + scmProviderType + " cannot be found.");
     }
 
     Logger.info("Using class " + scmProviderClass.getName() + " SCM provider for type: " + scmProviderType);
