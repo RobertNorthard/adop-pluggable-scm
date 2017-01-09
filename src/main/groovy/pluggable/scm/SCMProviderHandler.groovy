@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.*;
 
+import pluggable.scm.helpers.Logger;
 import pluggable.configuration.EnvVarProperty;
 
 /**
@@ -35,14 +36,14 @@ public class SCMProviderHandler {
     SCMProviderFactory scmProviderFactory = null;
     SCMProvider scmProvider = null;
 
-    envVarProperty.getLogger().println("[INFO] - Finding SCM provider for SCM provider id: " + scmProviderId);
+    Logger.info("Finding SCM provider for SCM provider id: " + scmProviderId);
 
     // assume properties datastore by default
     SCMProviderDataStore scmProviderDataStore = new PropertiesSCMProviderDataStore();
 
     Properties scmProviderProperties = scmProviderDataStore.get(scmProviderId);
 
-    envVarProperty.getLogger().println("[INFO] - Found properties datastore for SCM provider id: " + scmProviderId);
+    Logger.info("Found properties datastore for SCM provider id: " + scmProviderId);
 
     if(scmProviderProperties == null){
       throw IllegalArgumentException("[INFO] - SCM provider properties not found.")
@@ -50,13 +51,13 @@ public class SCMProviderHandler {
 
     String scmProviderType = scmProviderProperties.getProperty("scm.type");
 
-    envVarProperty.getLogger().println("[INFO] - SCM provider type: " + scmProviderType);
+    Logger.info("SCM provider type: " + scmProviderType);
 
     if(scmProviderType == null || scmProviderType.equals("")){
         throw new IllegalArgumentException("SCM provider property, 'scm.type' must be specified.");
     }
 
-    envVarProperty.getLogger().println("[INFO] - Inferring SCM provider.");
+    Logger.info("Inferring SCM provider.");
 
     scmProviderClass = SCMProviderHandler
                         .findScmProvider(scmProviderType, SCMProviderHandler
@@ -66,7 +67,7 @@ public class SCMProviderHandler {
         throw new IllegalArgumentException("[INFO] - SCM provider for scm.type=" + scmProviderType + " cannot be found.");
     }
 
-    envVarProperty.getLogger().println("[INFO] - Using class " + scmProviderClass.getName() + " SCM provider for type: " + scmProviderType);
+    Logger.info("Using class " + scmProviderClass.getName() + " SCM provider for type: " + scmProviderType);
 
     scmProviderFactory = (SCMProviderFactory)scmProviderClass.newInstance();
     scmProvider = scmProviderFactory.create(scmProviderProperties);
