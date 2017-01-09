@@ -181,27 +181,31 @@ public class GerritSCMProvider implements SCMProvider {
         // Populate repository
         String tempDir = workspace + "/tmp"
 
-        def gitSsh = new File (tempDir + 'git_ssh.sh')
-        def tempScript = new File(tempDir + 'shell_script.sh')
+        def gitSsh = new File (tempDir + '/git_ssh.sh')
+        def tempScript = new File(tempDir + '/shell_script.sh')
 
-        gitSsh << "#!/bin/sh"
+        gitSsh << "#!/bin/sh\n"
         gitSsh << "exec ssh -i " + envVarProperty.getSshPrivateKeyPath() + " -o StrictHostKeyChecking=no \"\$@\""
 
-        tempScript << "export GIT_SSH=\"tempDir + 'git_ssh.sh\""
-        tempScript << "git clone ssh://" + this.gerritUser + "@" + this.gerritEndpoint + ":" + this.gerritPort + "/" + target_repo_name + " " + tempDir + "/" + repoName
+        tempScript << "export GIT_SSH=\""+ tempDir + "/git_ssh.sh\"\n"
+        tempScript << "git clone ssh://" + this.gerritUser + "@" + this.gerritEndpoint + ":" + this.gerritPort + "/" + target_repo_name + " " + tempDir + "/" + repoName + "\n"
         def gitDir = "--git-dir=" + tempDir + "/" + repoName + "/.git"
-        tempScript << "git " + gitDir + " remote add source " + repo
-        tempScript << "git " + gitDir + " fetch source"
+        tempScript << "git " + gitDir + " remote add source " + repo + "\n"
+        tempScript << "git " + gitDir + " fetch source" + "\n"
 
         if (overwriteRepos == "true"){
-          tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*"
+          tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*\n"
         } else {
-          tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*"
+          tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*\n"
         }
 
-        com.executeCommand('chmod +x ' + tempDir + 'git_ssh.sh')
-        com.executeCommand('chmod +x ' + tempDir + 'shell_script.sh')
-        com.executeCommand(tempDir + 'shell_script.sh')
+        com.executeCommand('chmod +x ' + tempDir + '/git_ssh.sh')
+        com.executeCommand('chmod +x ' + tempDir + '/shell_script.sh')
+        com.executeCommand(tempDir + '/shell_script.sh')
+
+        // delete temp scripts.
+        //gitSsh.delete()
+        //tempScript.delete()
     }
   }
 
