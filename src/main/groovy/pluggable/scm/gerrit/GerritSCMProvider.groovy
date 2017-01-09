@@ -35,6 +35,12 @@ public class GerritSCMProvider implements SCMProvider {
   * @param scmProtocol scm clone protocol
   * @param scmGerritProfile scm Gerrit profile
   * @param scmGerritCloneUser scm gerrit clone user. Must be set of the SCM protocol is set to SSH.
+  * @param scmCodeReviewEnabled true if code reviewed enabled else false.
+  * @param gerritEndpoint gerrit host endpoint.
+  * @param gerritUser gerrit API user.
+  * @param gerritPort gerrit API port.
+  * @param gerritPermissions gerrit permissions repository name.
+  * @param gerritPermissionsWithReview gerrit permissions with review repository name.
   *
   * @throws IllegalArgumentException
   *         If SCM protocol is equal to GerritSCMProtocol.SSH and the Gerrit clone user has not been provided.
@@ -137,11 +143,11 @@ public class GerritSCMProvider implements SCMProvider {
     EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
 
     // Check if code review has been enabled
-    if(codeReviewEnabled == "true" && this.scmCodeReviewEnabled == "false"){
+    if(codeReviewEnabled.equals("true") && this.scmCodeReviewEnabled.equals("false")){
       throw new IllegalArgumentException("You have tried to use code review however it is not supported for your chosen SCM provider.");
     }
 
-    if (codeReviewEnabled == "true"){
+    if (codeReviewEnabled.equals("true")){
       permissions_repo_temp = this.gerritPermissionsWithReview
     } else {
       permissions_repo_temp = this.gerritPermissions

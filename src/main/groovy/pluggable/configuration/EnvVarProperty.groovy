@@ -57,17 +57,14 @@ public class EnvVarProperty {
   */
   public String getPluggablePath(){
 
-      if (!this.hasProperty("SCM_PROVIDER_PLUGGABLE_PATH"))
-        throw new IllegalArgumentException(
-          "Property SCM_PROVIDER_PLUGGABLE_PATH does not exist.");
+      String property = this.getProperty("PLUGGABLE_SCM_PROVIDER_PATH")
 
-
-      if(!this.checkDirectoryExists(this.bindings.SCM_PROVIDER_PLUGGABLE_PATH)){
+      if(!this.checkDirectoryExists(property)){
         throw new IllegalArgumentException(
-          "Invalid environment variable - SCM_PROVIDER_PLUGGABLE_PATH must be a valid directory.");
+          "Invalid environment variable - PLUGGABLE_SCM_PROVIDER_PATH must be a valid directory.");
       }
 
-      return this.bindings.SCM_PROVIDER_PLUGGABLE_PATH
+      return property;
   }
 
   /**
@@ -77,17 +74,13 @@ public class EnvVarProperty {
   */
   public String getSshPrivateKeyPath(){
 
-      if (!this.hasProperty("SCM_SSH_KEY"))
-        throw new IllegalArgumentException(
-          "Property SCM_SSH_KEY does not exist.");
-
-      String path = this.bindings.SCM_SSH_KEY;
+      String path = this.getProperty("SCM_SSH_KEY")
 
       if(path == null || path.equals(""))
         throw new IllegalArgumentException(
           "SSH private key is not set.");
 
-      return path
+      return path;
   }
 
   /**
@@ -99,11 +92,11 @@ public class EnvVarProperty {
   */
   public String getPropertiesPath(){
 
-      String property = this.getProperty("SCM_PROVIDER_PROPERTIES_PATH")
+      String property = this.getProperty("PLUGGABLE_SCM_PROVIDER_PROPERTIES_PATH")
 
       if(!this.checkDirectoryExists(property)){
         throw new IllegalArgumentException(
-          "Invalid environment variable - SCM_PROVIDER_PROPERTIES_PATH value must be a valid directory.");
+          "Invalid environment variable - PLUGGABLE_SCM_PROVIDER_PROPERTIES_PATH value must be a valid directory.");
       }
 
       return property;

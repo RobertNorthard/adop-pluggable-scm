@@ -21,7 +21,7 @@ public class SCMProviderHandler {
   *   SCM provider id. The method uses the SCM Provider data store to infer
   *   the SCM providers configuration.
   * @param scmProviderId - the unique id of the SCM provider.
-  * @return the infferred SCM provider for the provided unique SCM provider Id.
+  * @return the inferred SCM provider for the provided unique SCM provider Id.
   **/
   public static SCMProvider getScmProvider(String scmProviderId, def variableBindings) {
 
