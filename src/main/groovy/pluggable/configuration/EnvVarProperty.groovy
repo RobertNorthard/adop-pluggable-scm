@@ -99,16 +99,29 @@ public class EnvVarProperty {
   */
   public String getPropertiesPath(){
 
-      if (!this.hasProperty("SCM_PROVIDER_PROPERTIES_PATH"))
-      throw new IllegalArgumentException(
-        "Property SCM_PROVIDER_PROPERTIES_PATH does not exist.");
+      String property = this.getProperty("SCM_PROVIDER_PROPERTIES_PATH")
 
-      if(!this.checkDirectoryExists(this.bindings.SCM_PROVIDER_PROPERTIES_PATH)){
+      if(!this.checkDirectoryExists(property)){
         throw new IllegalArgumentException(
           "Invalid environment variable - SCM_PROVIDER_PROPERTIES_PATH value must be a valid directory.");
       }
 
-      return this.bindings.SCM_PROVIDER_PROPERTIES_PATH;
+      return property;
+  }
+
+  /**
+  * Return a string representation of the specified property.
+  *
+  * @param property the property to search for.
+  * @return a string representation of the specified property.
+  */
+  public String getProperty(String property){
+
+      if (!this.hasProperty(property))
+      throw new IllegalArgumentException(
+        "Property " + property + " does not exist.");
+
+      return this.bindings[property];
   }
 
   /**
