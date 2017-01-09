@@ -159,10 +159,7 @@ public class GerritSCMProvider implements SCMProvider {
 
         // Check if the repository already exists or not
         String listCommand = "ssh -i " + envVarProperty.getSshPrivateKeyPath() + " -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit ls-projects --type code"
-        envVarProperty.getLogger().println("[INFO] - list command " +  listCommand);
         List<String> gerritRepoList = (com.executeCommand(listCommand).split("\\r?\\n"));
-        envVarProperty.getLogger().println("[INFO] -  command results " +  com.executeCommand(listCommand));
-        envVarProperty.getLogger().println("[INFO] - list command " +  gerritRepoList);
 
         for(String gerritRepo: gerritRepoList) {
           if(gerritRepo.trim().contains(target_repo_name)) {
@@ -204,7 +201,7 @@ public class GerritSCMProvider implements SCMProvider {
 
         com.executeCommand('chmod +x ' + tempDir + 'git_ssh.sh')
         com.executeCommand('chmod +x ' + tempDir + 'shell_script.sh')
-        com.executeCommand(pushCommand)
+        com.executeCommand(tempDir + 'shell_script.sh')
     }
   }
 

@@ -30,7 +30,7 @@ public class EnvVarProperty {
   }
 
   /**
-  * Provate constructor for class EnvVarProperty as it's a singleton.
+  * Private constructor for class EnvVarProperty as it's a singleton.
   */
   private EnvVarProperty(){ }
 
