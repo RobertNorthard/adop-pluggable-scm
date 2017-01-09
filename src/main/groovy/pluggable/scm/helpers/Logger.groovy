@@ -8,8 +8,6 @@ import pluggable.configuration.EnvVarProperty;
 public class Logger {
 
   private static final EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
-  private static final Object lock = new Object();
-  private static Logger singleton = null;
 
   /**
   * Print to the stdout logger with a INFO presecence.
