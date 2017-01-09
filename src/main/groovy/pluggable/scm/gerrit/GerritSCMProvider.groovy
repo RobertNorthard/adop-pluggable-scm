@@ -193,8 +193,9 @@ public class GerritSCMProvider implements SCMProvider {
         tempScript << "git " + gitDir + " remote add source " + repo + "\n"
         tempScript << "git " + gitDir + " fetch source" + "\n"
 
-        if (overwriteRepos == "true"){
+        if (overwriteRepos.equals("true")){
           tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*\n"
+          envVarProperty.getLogger().println("[INFO] - Repository already exists, overwritting: : " + target_repo_name);
         } else {
           tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*\n"
         }
@@ -204,8 +205,8 @@ public class GerritSCMProvider implements SCMProvider {
         com.executeCommand(tempDir + '/shell_script.sh')
 
         // delete temp scripts.
-        //gitSsh.delete()
-        //tempScript.delete()
+        gitSsh.delete()
+        tempScript.delete()
     }
   }
 
