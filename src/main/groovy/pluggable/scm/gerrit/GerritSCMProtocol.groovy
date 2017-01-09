@@ -12,7 +12,7 @@ enum GerritSCMProtocol {
     private final String protocol = "";
 
     /**
-    * Constructor got class GerritSCMProtocol.
+    * Constructor for class GerritSCMProtocol.
     *
     * @param protocal a string representation of the protocol e.g. ssh, https
     */

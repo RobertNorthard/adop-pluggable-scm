@@ -15,7 +15,7 @@ public class Logger {
   *  @param msg the message to log.
   */
   public static void info(String msg){
-    log("INFO", msg);
+    log(LogLevel.INFO, msg);
   }
 
   /**
@@ -24,7 +24,7 @@ public class Logger {
   * @param logLvl the logLvl e.g. INFO
   * @param msg the message to log.
   */
-  public static void log(String logLvl, String msg){
-    envVarProperty.getLogger().println("[" + logLvl + "] - " +  msg);
+  public static void log(LogLevel logLvl, String msg){
+    envVarProperty.getLogger().println("[" + logLvl.toString() + "] - " +  msg);
   }
 }
