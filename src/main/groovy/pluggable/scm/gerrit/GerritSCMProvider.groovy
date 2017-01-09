@@ -5,6 +5,7 @@ import pluggable.scm.SCMProvider;
 
 import pluggable.configuration.EnvVarProperty;
 import pluggable.scm.helpers.ExecuteShellCommand;
+import pluggable.scm.helpers.Logger;
 
 /**
 * This class implements the Gerrit SCM Provider.
@@ -163,7 +164,7 @@ public class GerritSCMProvider implements SCMProvider {
 
         for(String gerritRepo: gerritRepoList) {
           if(gerritRepo.trim().contains(target_repo_name)) {
-             envVarProperty.getLogger().println("[INFO] - Found: " + target_repo_name);
+             Logger.info("Found: " + target_repo_name);
              repo_exists=1
              break
           }
@@ -173,9 +174,9 @@ public class GerritSCMProvider implements SCMProvider {
         if (repo_exists.equals(0)) {
           String createCommand = "ssh -i " + envVarProperty.getSshPrivateKeyPath() + " -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit create-project --parent " + permissions_repo + " " + target_repo_name
           com.executeCommand(createCommand)
-          envVarProperty.getLogger().println("[INFO] - Creating repository in Gerrit: " + target_repo_name);
+          Logger.info("Creating repository in Gerrit: " + target_repo_name);
         } else{
-          envVarProperty.getLogger().println("[INFO] - Repository already exists, skipping create: : " + target_repo_name);
+          Logger.info("Repository already exists, skipping create: : " + target_repo_name);
         }
 
         // Populate repository
@@ -195,7 +196,7 @@ public class GerritSCMProvider implements SCMProvider {
 
         if (overwriteRepos.equals("true")){
           tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*\n"
-          envVarProperty.getLogger().println("[INFO] - Repository already exists, overwritting: : " + target_repo_name);
+          Logger.info("Repository already exists, overwritting: : " + target_repo_name);
         } else {
           tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*\n"
         }
