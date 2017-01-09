@@ -158,7 +158,7 @@ public class GerritSCMProvider implements SCMProvider {
         int repo_exists=0;
 
         // Check if the repository already exists or not
-        String listCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit ls-projects --type code"
+        String listCommand = "ssh -i " + envVarProperty.getSshPrivateKeyPath() + " -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit ls-projects --type code"
         envVarProperty.getLogger().println("[INFO] - list command " +  listCommand);
         List<String> gerritRepoList = (com.executeCommand(listCommand).split("\\r?\\n"));
         envVarProperty.getLogger().println("[INFO] -  command results " +  com.executeCommand(listCommand));
@@ -174,7 +174,7 @@ public class GerritSCMProvider implements SCMProvider {
 
         // If not, create it
         if (repo_exists.equals(0)) {
-          String createCommand = "ssh -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit create-project --parent " + permissions_repo + " " + target_repo_name
+          String createCommand = "ssh -i " + envVarProperty.getSshPrivateKeyPath() + " -n -o StrictHostKeyChecking=no -p " + this.gerritPort + " " + this.gerritUser + "@" + this.gerritEndpoint + " gerrit create-project --parent " + permissions_repo + " " + target_repo_name
           com.executeCommand(createCommand)
           envVarProperty.getLogger().println("[INFO] - Creating repository in Gerrit: " + target_repo_name);
         } else{
@@ -183,21 +183,28 @@ public class GerritSCMProvider implements SCMProvider {
 
         // Populate repository
         String tempDir = workspace + "/tmp"
-        String cloneCommand = "git clone ssh://" + this.gerritUser + "@" + this.gerritEndpoint + ":" + this.gerritPort + "/" + target_repo_name + " " + tempDir + "/" + repoName
-        String gitDir = "--git-dir=" + tempDir + "/" + repoName + "/.git"
-        String remoteCommand = "git " + gitDir + " remote add source " + repo
-        String fetchCommand = "git " + gitDir + " fetch source"
-        com.executeCommand(cloneCommand)
-        com.executeCommand(remoteCommand)
-        com.executeCommand(fetchCommand)
+
+        def gitSsh = new File (tempDir + 'git_ssh.sh')
+        def tempScript = new File(tempDir + 'shell_script.sh')
+
+        gitSsh << "#!/bin/sh"
+        gitSsh << "exec ssh -i " + envVarProperty.getSshPrivateKeyPath() + " -o StrictHostKeyChecking=no \"\$@\""
+
+        tempScript << "export GIT_SSH=\"tempDir + 'git_ssh.sh\""
+        tempScript << "git clone ssh://" + this.gerritUser + "@" + this.gerritEndpoint + ":" + this.gerritPort + "/" + target_repo_name + " " + tempDir + "/" + repoName
+        def gitDir = "--git-dir=" + tempDir + "/" + repoName + "/.git"
+        tempScript << "git " + gitDir + " remote add source " + repo
+        tempScript << "git " + gitDir + " fetch source"
+
         if (overwriteRepos == "true"){
-          String pushCommand = "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*"
-          com.executeCommand(pushCommand)
+          tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*"
         } else {
-          String pushCommand = "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*"
-          com.executeCommand(pushCommand)
+          tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*"
         }
 
+        com.executeCommand('chmod +x ' + tempDir + 'git_ssh.sh')
+        com.executeCommand('chmod +x ' + tempDir + 'shell_script.sh')
+        com.executeCommand(pushCommand)
     }
   }
 

@@ -71,6 +71,26 @@ public class EnvVarProperty {
   }
 
   /**
+  * Return a string representation of the cartridge loaders SCM_SSH_KEY path.
+  *
+  * @return a string representation of the cartridge loaders SCM_SSH_KEY path.
+  */
+  public String getSshPrivateKeyPath(){
+
+      if (!this.hasProperty("SCM_SSH_KEY"))
+        throw new IllegalArgumentException(
+          "Property SCM_SSH_KEY does not exist.");
+
+      String path = this.bindings.SCM_SSH_KEY;
+
+      if(path == null || path.equals(""))
+        throw new IllegalArgumentException(
+          "SSH private key is not set.");
+
+      return path
+  }
+
+  /**
   * Return a string representation of the SCM provider's properties file search
   * path.
   *
