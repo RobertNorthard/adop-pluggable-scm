@@ -1,10 +1,9 @@
-
 package pluggable.scm;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.*;
-
+import groovy.json.JsonSlurper;
 import pluggable.scm.helpers.Logger;
 import pluggable.configuration.EnvVarProperty;
 
@@ -21,8 +20,11 @@ public class SCMProviderHandler {
   *   SCM provider id. The method uses the SCM Provider data store to infer
   *   the SCM providers configuration.
   * @param scmProviderId - the unique id of the SCM provider.
+  * @param variableBindings
+  * @param listener
   * @return the inferred SCM provider for the provided unique SCM provider Id.
   **/
+
   public static SCMProvider getScmProvider(String scmProviderId, def variableBindings) {
 
     if(scmProviderId == null || scmProviderId.equals("")){
@@ -43,11 +45,11 @@ public class SCMProviderHandler {
 
     Properties scmProviderProperties = scmProviderDataStore.get(scmProviderId);
 
-    Logger.info("Found properties datastore for SCM provider id: " + scmProviderId);
-
     if(scmProviderProperties == null){
       throw IllegalArgumentException("SCM provider properties not found.")
     }
+
+    Logger.info("Found properties datastore for SCM provider id: " + scmProviderId);
 
     String scmProviderType = scmProviderProperties.getProperty("scm.type");
 

@@ -202,7 +202,7 @@ public class GerritSCMProvider implements SCMProvider {
 
         if (overwriteRepos.equals("true")){
           tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*\n"
-          Logger.info("Repository already exists, overwritting: : " + target_repo_name);
+          Logger.info("Repository already exists, overwriting: : " + target_repo_name);
         } else {
           tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*\n"
         }
@@ -261,5 +261,10 @@ public class GerritSCMProvider implements SCMProvider {
             }
           }
         }
+    }
+
+
+    public void setScmProviderCredentials(String username, String password){
+        //do nothing.
     }
 }

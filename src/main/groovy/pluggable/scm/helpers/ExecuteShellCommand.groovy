@@ -1,4 +1,3 @@
-
 package pluggable.scm.helpers;
 
 /**
