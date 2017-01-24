@@ -1,0 +1,7 @@
+loader.id=adop-sample-gerrit-1
+gerrit.endpoint=gerrit
+gerrit.user=jenkins
+gerrit.port=29418
+gerrit.protocol=ssh
+gerrit.permissions.path=${PROJECT_NAME}/permissions
+gerrit.permissions.with_review.path=${PROJECT_NAME}/permissions-with-review

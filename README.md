@@ -1,22 +1,25 @@
 
-# Accenture DevOps Platform Pluggable SCM Library
+# ADOP Pluggable SCM Library
 
 This library provides a mechanism to enable multiple SCM support (Gerrit, BitBucket) for ADOP cartridges.
 
-## Library Class Diagram
+# Testing
 
-![SCM Pluggable Library High-Level class diagram](documentation/uml/images/pluggable.scm_library_class_diagram.png)
+To execute the frameworks tests execute.
 
-## Extending the SCM Library
+`gradlew test`
 
-### Adding an addtional SCM provider
+# License
+Please view [license information](LICENSE.md) for the software contained on this image.
 
-To add an additional SCMProvider the following is required;
- - Create classes that implement the SCMProvider and SCMHandlerFactory interface according to your SCM provider in the pluggable.scm.<SCM-provider-type> package.
- - Add an annotation (@SCPProviderInfo) to the new SCMProvider concrete class to mark the class as an SCM provider and provide a human friendly type name.
- 
-## Testing
+## Documentation
+Documentation will be captured within this README.md and this repository's Wiki.
 
-To execute the utilities tests execute.
+## Issues
+If you have any problems with or questions about this image, please contact us through a [GitHub issue](https://github.com/Accenture/adop-pluggable-scm/issues).
 
-```gradlew test```
+## Contribute
+You are invited to contribute new features, fixes, or updates, large or small; we are always thrilled to receive pull requests, and do our best to process them as fast as we can.
+
+Before you start to code, we recommend discussing your plans through a [GitHub issue](https://github.com/Accenture/adop-pluggable-scm/issues), especially for more ambitious contributions. This gives other contributors a chance to point you in the right direction, give you feedback on your design, and help you find out if someone else is working on the same thing.
+

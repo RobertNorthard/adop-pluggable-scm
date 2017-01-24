@@ -1,0 +1,10 @@
+scm.loader.id=adop-sample-gerrit-1
+scm.id=adop-gerrit-http
+scm.type=gerrit
+scm.code_review.enabled=true
+scm.protocol=http
+scm.port=8080
+scm.host=10.0.0.1
+scm.url=http://<IP>/gerrit/
+
+scm.gerrit.server.profile=ADOP Gerrit
