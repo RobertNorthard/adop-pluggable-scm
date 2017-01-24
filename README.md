@@ -1,7 +1,7 @@
 
 # ADOP Pluggable SCM Library
 
-This library provides a mechanism to enable multiple SCM support (Gerrit, BitBucket) for ADOP cartridges.
+This library provides a mechanism to create SCM provider agnostic Job DSL SCM/trigger closures.
 
 # Testing
 
