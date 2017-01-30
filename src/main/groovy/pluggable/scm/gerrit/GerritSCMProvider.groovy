@@ -262,9 +262,4 @@ public class GerritSCMProvider implements SCMProvider {
           }
         }
     }
-
-
-    public void setScmProviderCredentials(String username, String password){
-        //do nothing.
-    }
 }

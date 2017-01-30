@@ -38,14 +38,5 @@ public interface SCMProvider {
     * @param overwriteRepos Whether the contents of your created repositories are over-written or not
     **/
     public void createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos)
-
-
-
-    /**
-     * Set username and password for scm providers for example bitbucket to access server.
-     *
-     * @param String Username
-     * @param String Password
-     **/
-    public void setScmProviderCredentials(String username, String password)
+    
 }

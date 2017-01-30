@@ -19,9 +19,8 @@ public class BitbucketSCMProvider implements SCMProvider {
   private final String bitbucketEndpoint;
   private final int bitbucketPort;
   private final BitbucketSCMProtocol bitbucketProtocol;
-
-  private String bitbucketUsername;
-  private String bitbucketPassword;
+  private final String bitbucketUsername;
+  private final String bitbucketPassword;
 
   /**
   * Constructor for class BitbucketSCMProvider.
@@ -32,16 +31,13 @@ public class BitbucketSCMProvider implements SCMProvider {
   * @param gerritEndpoint bitbucket host endpoint.
   * @param bitbucketProtocol protocol which will be used for HTTP requests.
   * @param bitbucketPort bitbucket API port.
-  * @param bitbucketCredentialId bitbucket credential which will used for managing bitbucket project.
   */
   public BitbucketSCMProvider(int scmPort,
                               BitbucketSCMProtocol scmProtocol,
                               String bitbucketHost,
                               String bitbucketEndpoint,
                               BitbucketSCMProtocol bitbucketProtocol,
-                              int bitbucketPort,
-                              bitbucketCredentialId){
-
+                              int bitbucketPort){
 
       this.scmPort = scmPort;
       this.scmProtocol = scmProtocol;
@@ -49,13 +45,13 @@ public class BitbucketSCMProvider implements SCMProvider {
       this.bitbucketEndpoint = bitbucketEndpoint;
       this.bitbucketPort = bitbucketPort;
       this.bitbucketProtocol = bitbucketProtocol;
-      this.bitbucketCredentialId = bitbucketCredentialId;
 
       // If not it will thorw IllegalArgumentException.
       BitbucketSCMProtocol.isProtocolSupported(this.bitbucketProtocol);
 
-//      this.bitbucketUsername = HelperUtils.extractCredentials(bitbucketCredentialId)[0];
-//      this.bitbucketPassword = HelperUtils.extractCredentials(bitbucketCredentialId)[1];
+      EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
+      this.bitbucketUsername = envVarProperty.getProperty("SCM_USERNAME");
+      this.bitbucketPassword = envVarProperty.getProperty("SCM_PASSWORD");
   }
 
     /**
@@ -94,14 +90,15 @@ public class BitbucketSCMProvider implements SCMProvider {
 
           switch(this.scmProtocol){
             case BitbucketSCMProtocol.SSH:
-              url.append("git");
+              url.append("git@");
               break;
             case BitbucketSCMProtocol.HTTP:
             case BitbucketSCMProtocol.HTTPS:
-                if(username == null && password == null){
-                    url.append(this.bitbucketUsername);
+                if(username != null && password != null){
+                    url.append(username);
                     url.append(":");
-                    url.append(this.bitbucketPassword);
+                    url.append(password);
+                    url.append("@");
                 }
               break;
             default:
@@ -109,7 +106,6 @@ public class BitbucketSCMProvider implements SCMProvider {
               break;
           }
 
-          url.append("@");
           url.append(this.bitbucketHost);
           url.append(":");
           url.append(this.scmPort);
@@ -237,12 +233,5 @@ public class BitbucketSCMProvider implements SCMProvider {
               bitbucketPush()
               scm('')
         }
-    }
-
-
-    //Just for testing...
-    public void setScmProviderCredentials(String username, String password){
-        bitbucketUsername = username;
-        bitbucketPassword = password;
     }
 }

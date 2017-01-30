@@ -35,8 +35,7 @@ public class BitbucketSCMProviderFactory implements SCMProviderFactory {
             this.validateProperties("bitbucket.host", bitbucketHost),
             this.validateBitbucketEndpoint(bitbucketEndpoint),
             BitbucketSCMProtocol.valueOf(this.validateProperties("bitbucket.protocol", bitbucketProtocol.toUpperCase())),
-            bitbucketPort,
-            this.validateProperties("bitbucket.credentialId", bitbucketCredentialId)
+            bitbucketPort
     );
   }
 
