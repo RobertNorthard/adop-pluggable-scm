@@ -3,6 +3,7 @@ package pluggable.scm.bitbucket;
 import pluggable.scm.SCMProvider;
 import pluggable.configuration.EnvVarProperty;
 import pluggable.scm.helpers.*;
+import java.util.Properties;
 
 /**
 * This class implements the Bitbucket SCM Provider.
@@ -50,8 +51,10 @@ public class BitbucketSCMProvider implements SCMProvider {
       BitbucketSCMProtocol.isProtocolSupported(this.bitbucketProtocol);
 
       EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
-      this.bitbucketUsername = envVarProperty.getProperty("SCM_USERNAME");
-      this.bitbucketPassword = envVarProperty.getProperty("SCM_PASSWORD");
+      String filePath =  envVarProperty.getProperty("WORKSPACE")+envVarProperty.getProperty("SCM_KEY")
+      Properties fileProperties = HelperUtils.getFileProperties(filePath)
+      this.bitbucketUsername = fileProperties.getProperty("SCM_USERNAME");
+      this.bitbucketPassword = fileProperties.getProperty("SCM_PASSWORD");
   }
 
     /**
