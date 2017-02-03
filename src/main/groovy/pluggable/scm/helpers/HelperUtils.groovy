@@ -51,7 +51,6 @@ public class HelperUtils {
         }
 
         InputStream tempInput = new FileInputStream(tempFile);
-        tempFile.delete();
         fileProperties.load(tempInput);
 
         return fileProperties;
