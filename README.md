@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/Accenture/adop-pluggable-scm.svg?branch=master)](https://travis-ci.org/Accenture/adop-pluggable-scm)
 
 # ADOP Pluggable SCM Library
 
