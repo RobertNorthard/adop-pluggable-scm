@@ -4,6 +4,7 @@ import pluggable.scm.SCMProvider;
 import pluggable.configuration.EnvVarProperty;
 import pluggable.scm.helpers.*;
 import java.util.Properties;
+import java.net.URL;
 
 /**
 * This class implements the Bitbucket SCM Provider.
@@ -132,7 +133,7 @@ public class BitbucketSCMProvider implements SCMProvider {
   * @parma overwriteRepos
   **/
   public void createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos) {
-    String bitbucketUrl = this.bitbucketProtocol.toString() + "://" + this.bitbucketHost + ":" + this.bitbucketPort + this.bitbucketEndpoint;
+    URL bitbucketUrl = new URL(this.bitbucketProtocol.toString(), this.bitbucketHost, this.bitbucketPort, this.bitbucketEndpoint);
 
     BitbucketRequestUtil.isProjectAvailable(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace);
 

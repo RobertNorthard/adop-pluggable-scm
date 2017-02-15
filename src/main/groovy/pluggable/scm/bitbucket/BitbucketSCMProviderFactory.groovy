@@ -26,7 +26,6 @@ public class BitbucketSCMProviderFactory implements SCMProviderFactory {
     String bitbucketHost = scmProviderProperties.getProperty("bitbucket.host");
     String bitbucketEndpoint = scmProviderProperties.getProperty("bitbucket.endpoint");
     String bitbucketProtocol = scmProviderProperties.getProperty("bitbucket.protocol");
-    String bitbucketCredentialId = scmProviderProperties.getProperty("bitbucket.credentialId");
     int bitbucketPort = Integer.parseInt(scmProviderProperties.getProperty("bitbucket.port"));
 
     return new BitbucketSCMProvider(

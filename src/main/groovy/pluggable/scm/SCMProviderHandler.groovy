@@ -61,8 +61,7 @@ public class SCMProviderHandler {
 
     Logger.info("Inferring SCM provider.");
 
-    scmProviderClass = SCMProviderHandler
-                        .findScmProvider(scmProviderType, SCMProviderHandler
+    scmProviderClass = SCMProviderHandler.findScmProvider(scmProviderType, SCMProviderHandler
                                             .findClasses(new File(envVarProperty.getPluggablePath()),""));
 
     if(scmProviderClass == null){

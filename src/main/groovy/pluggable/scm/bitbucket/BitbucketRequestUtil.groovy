@@ -1,83 +1,106 @@
 package pluggable.scm.bitbucket;
-@Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.5.0-RC2' )
-import groovyx.net.http.*;
-import static groovyx.net.http.ContentType.*;
-import static groovyx.net.http.Method.*;
+
 import pluggable.scm.helpers.*;
+import java.net.URL;
+import java.io.IOException;
+import java.io.DataOutputStream;
+import java.nio.charset.Charset;
+import groovy.json.JsonSlurper;
+import groovy.json.JsonOutput;
 
 
 public class BitbucketRequestUtil {
 
-  public static void isProjectAvailable(String bitbucketUrl, String username, String password, String projectKey){
-    def http = new HTTPBuilder(bitbucketUrl);
-    def auth = "${username}:${password}".bytes.encodeBase64().toString()
+  public static void isProjectAvailable(URL bitbucketUrl, String username, String password, String projectKey){
 
-    http.request(GET){ req ->
-        uri.path = "/rest/api/latest/projects/" + projectKey
-        headers.'Authorization' = "Basic ${auth}"
-        response.success = { resp ->
-          assert resp.status == 200
-          Logger.info("Project ${projectKey} found all good!")
-        };
+    URL url = new URL(bitbucketUrl, "/rest/api/latest/projects/" + projectKey);
+    def auth = "${username}:${password}".bytes.encodeBase64().toString();
 
-        response.failure = { resp ->
-          if(resp.status == 401){
-              Logger.log(LogLevel.ERROR, "Credentials are invalid.");
-          }
-          if(resp.status > 401){
-            throw new HttpResponseException("Project doesn't exist or host not available!");
-          }
-        };
-    };
+    HttpURLConnection http = (HttpURLConnection) url.openConnection();
+    http.setRequestMethod("GET");
+    http.setRequestProperty ("Authorization", "Basic ${auth}");
+
+    switch (http.getResponseCode()) {
+      case 200:
+        Logger.info("Project ${projectKey} found all good!");
+        break;
+      case 401:
+        Logger.log(LogLevel.ERROR, "Credentials are invalid.");
+        break;
+      case {it > 401}:
+        throw new IOException("Project doesn't exist or host not available!");
+        break;
+    }
   }
 
-  public static String[] getProjectRepositorys(String bitbucketUrl, String username, String password, String projectKey){
-      def http = new HTTPBuilder(bitbucketUrl);
-      def auth = "${username}:${password}".bytes.encodeBase64().toString()
-      List<String> repositoryList = [];
-      http.request(GET){ req ->
-        uri.path = "/rest/api/latest/projects/${projectKey}/repos"
-        requestContentType = ContentType.JSON
-        headers.'Authorization' = "Basic ${auth}"
-        response.success = { resp, json ->
-          assert resp.status == 200
-          for(int i = 0; i < json.size; i++){
-              repositoryList.add(json.values[i].name)
-          }
-        };
+  public static String[] getProjectRepositorys(URL bitbucketUrl, String username, String password, String projectKey){
 
-        response.failure = { resp, json ->
-          if(resp.status == 404){
-              throw new HttpResponseException("URI not found :" + bitbucketUrl + "/rest/api/latest/projects/${projectKey}/repos" + " not found!");
-          }else{
-              Logger.info(json.errors.message);
-          }
-        };
-      };
-      return repositoryList;
-  }
+    JsonSlurper jsonSlurper = new JsonSlurper();
+    URL url = new URL(bitbucketUrl, "/rest/api/latest/projects/${projectKey}/repos");
+    def auth = "${username}:${password}".bytes.encodeBase64().toString();
+    List<String> repositoryList = [];
 
-  public static void createRepository(String bitbucketUrl, String username, String password, String projectKey, String repoName){
-    def http = new HTTPBuilder(bitbucketUrl);
-    def auth = "${username}:${password}".bytes.encodeBase64().toString()
+    HttpURLConnection http = (HttpURLConnection) url.openConnection();
+    http.setRequestMethod("GET");
+    http.setRequestProperty ("Authorization", "Basic ${auth}");
+    http.setRequestProperty("Content-Type", "application/json");
 
-    http.request(POST){ req ->
-      uri.path = "/rest/api/latest/projects/${projectKey}/repos"
-      requestContentType = ContentType.JSON
-      body = [name: repoName, scmId: "git", forkable: "true"]
-      headers.'Authorization' = "Basic ${auth}"
-      response.success = { resp ->
-        assert resp.status == 201
-        Logger.info("Repository created in Bitbucket : " + projectKey + "/" + repoName);
-      };
-
-      response.failure = { resp, json ->
-        if(resp.status == 404){
-        	throw new HttpResponseException("URI not found :" + bitbucketUrl + "/rest/api/latest/projects/${projectKey}/repos" + " not found!");
-        }else{
-            Logger.info(json.errors.message);
+    switch (http.getResponseCode()) {
+      case 200:
+        def json = jsonSlurper.parse(http.getInputStream())
+        for(int i = 0; i < json.size; i++){
+          repositoryList.add(json.values[i].name)
         }
-      };
-    };
+        break;
+      case 401:
+        Logger.log(LogLevel.ERROR, "Credentials are invalid.");
+        break;
+      case 404:
+        throw new IOException("URI not found :" + bitbucketUrl.toString() + "/rest/api/latest/projects/${projectKey}/repos not found!");
+        break;
+      default:
+        def json = jsonSlurper.parse(http.getInputStream())
+        Logger.info(json.errors.message);
+        break;
+    }
+
+    return repositoryList;
+  }
+
+  public static void createRepository(URL bitbucketUrl, String username, String password, String projectKey, String repoName){
+
+    JsonSlurper jsonSlurper = new JsonSlurper();
+    URL url = new URL(bitbucketUrl, "/rest/api/latest/projects/${projectKey}/repos");
+    def auth = "${username}:${password}".bytes.encodeBase64().toString();
+    def body =  JsonOutput.toJson([name: repoName, scmId: "git", forkable: "true"])
+    byte[] postData = body.getBytes(Charset.forName("UTF-8"));
+
+    HttpURLConnection http = (HttpURLConnection) url.openConnection();
+    http.setRequestMethod("POST");
+    http.setDoOutput(true);
+    http.setInstanceFollowRedirects(false);
+    http.setRequestProperty ("Authorization", "Basic ${auth}");
+    http.setRequestProperty("Content-Type", "application/json");
+    http.setRequestProperty("charset", "utf-8");
+    http.setRequestProperty("Content-Length", postData.length.toString());
+    http.setUseCaches(false);
+
+    DataOutputStream wr = new DataOutputStream( http.getOutputStream())
+    wr.write( postData );
+    wr.flush();
+    wr.close();
+
+    switch (http.getResponseCode()) {
+	    case 201:
+        println("Repository created in Bitbucket : " + projectKey + "/" + repoName);
+        break;
+	    case 404:
+        throw new IOException("URI not found: " + bitbucketUrl.toString() + "/rest/api/latest/projects/${projectKey}/repos not found!");
+        break;
+	    default:
+        def json = jsonSlurper.parse(http.getInputStream())
+        println(json.errors.message);
+        break;
+    }
   }
 }
