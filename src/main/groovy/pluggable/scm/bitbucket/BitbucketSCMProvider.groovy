@@ -114,7 +114,7 @@ public class BitbucketSCMProvider implements SCMProvider {
           url.append(":");
           url.append(this.scmPort);
           url.append(this.bitbucketEndpoint);
-          if(this.bitbucketEndpoint != "/"){
+          if(this.bitbucketEndpoint.endsWith('/')){
             url.append("/")
           }
           if((this.scmProtocol == BitbucketSCMProtocol.HTTP) ||
