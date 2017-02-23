@@ -17,8 +17,8 @@ public class BitbucketSCMProvider implements SCMProvider {
   private final BitbucketSCMProtocol scmProtocol;
 
   // Bitbucket specific variables.
-  private final String bitbucketHost;
   private final String bitbucketEndpoint;
+  private final String bitbucketEndpointContext;
   private final int bitbucketPort;
   private final BitbucketSCMProtocol bitbucketProtocol;
   private final String bitbucketUsername;
@@ -29,22 +29,22 @@ public class BitbucketSCMProvider implements SCMProvider {
   *
   * @param scmPort scm port
   * @param scmProtocol scm clone protocol
-  * @param bitbucketHost host url e.g. 10.0.0.1, innersource.accenture.com
-  * @param gerritEndpoint bitbucket host endpoint.
+  * @param bitbucketEndpoint host url e.g. 10.0.0.1, innersource.accenture.com
+  * @param bitbucketEndpointContext bitbucket host endpoint context.
   * @param bitbucketProtocol protocol which will be used for HTTP requests.
   * @param bitbucketPort bitbucket API port.
   */
   public BitbucketSCMProvider(int scmPort,
                               BitbucketSCMProtocol scmProtocol,
-                              String bitbucketHost,
                               String bitbucketEndpoint,
+                              String bitbucketEndpointContext,
                               BitbucketSCMProtocol bitbucketProtocol,
                               int bitbucketPort){
 
       this.scmPort = scmPort;
       this.scmProtocol = scmProtocol;
-      this.bitbucketHost = bitbucketHost;
       this.bitbucketEndpoint = bitbucketEndpoint;
+      this.bitbucketEndpointContext = bitbucketEndpointContext;
       this.bitbucketPort = bitbucketPort;
       this.bitbucketProtocol = bitbucketProtocol;
 
@@ -110,10 +110,10 @@ public class BitbucketSCMProvider implements SCMProvider {
               break;
           }
 
-          url.append(this.bitbucketHost);
+          url.append(this.bitbucketEndpoint);
           url.append(":");
           url.append(this.scmPort);
-          url.append(this.bitbucketEndpoint);
+          url.append(this.bitbucketEndpointContext);
           if(this.bitbucketEndpoint.endsWith('/')){
             url.append("/")
           }
@@ -133,7 +133,7 @@ public class BitbucketSCMProvider implements SCMProvider {
   * @parma overwriteRepos
   **/
   public void createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos) {
-    URL bitbucketUrl = new URL(this.bitbucketProtocol.toString(), this.bitbucketHost, this.bitbucketPort, this.bitbucketEndpoint);
+    URL bitbucketUrl = new URL(this.bitbucketProtocol.toString(), this.bitbucketEndpoint, this.bitbucketPort, this.bitbucketEndpointContext);
 
     BitbucketRequestUtil.isProjectAvailable(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace);
 

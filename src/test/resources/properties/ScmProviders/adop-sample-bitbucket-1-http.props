@@ -1,0 +1,6 @@
+scm.loader.id=adop-bitbucket
+scm.id=adop-bitbucket-https
+scm.type=bitbucket
+scm.protocol=https
+scm.port=443
+scm.url=https://bitbucket.example.com/

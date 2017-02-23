@@ -23,16 +23,16 @@ public class BitbucketSCMProviderFactory implements SCMProviderFactory {
     int scmPort = Integer.parseInt(scmProviderProperties.getProperty("scm.port"));
 
     // Env veriables for Bitbucket REST
-    String bitbucketHost = scmProviderProperties.getProperty("bitbucket.host");
     String bitbucketEndpoint = scmProviderProperties.getProperty("bitbucket.endpoint");
+    String bitbucketEndpointContext = scmProviderProperties.getProperty("bitbucket.endpoint.context");
     String bitbucketProtocol = scmProviderProperties.getProperty("bitbucket.protocol");
     int bitbucketPort = Integer.parseInt(scmProviderProperties.getProperty("bitbucket.port"));
 
     return new BitbucketSCMProvider(
             scmPort,
             BitbucketSCMProtocol.valueOf(this.validateProperties("scm.protocol", scmProtocol.toUpperCase())),
-            this.validateProperties("bitbucket.host", bitbucketHost),
-            this.validateBitbucketEndpoint(bitbucketEndpoint),
+            this.validateProperties("bitbucket.endpoint", bitbucketEndpoint),
+            this.validateBitbucketEndpoint(bitbucketEndpointContext),
             BitbucketSCMProtocol.valueOf(this.validateProperties("bitbucket.protocol", bitbucketProtocol.toUpperCase())),
             bitbucketPort
     );
