@@ -3,7 +3,6 @@ package pluggable.scm;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.*;
-import groovy.json.JsonSlurper;
 import pluggable.scm.helpers.Logger;
 import pluggable.configuration.EnvVarProperty;
 
@@ -20,8 +19,7 @@ public class SCMProviderHandler {
   *   SCM provider id. The method uses the SCM Provider data store to infer
   *   the SCM providers configuration.
   * @param scmProviderId - the unique id of the SCM provider.
-  * @param variableBindings
-  * @param listener
+  * @param variableBindings - map to inject environment variables/SCM provider library configuration
   * @return the inferred SCM provider for the provided unique SCM provider Id.
   **/
 
