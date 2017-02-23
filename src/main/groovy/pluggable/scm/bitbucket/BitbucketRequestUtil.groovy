@@ -36,7 +36,7 @@ public class BitbucketRequestUtil {
   public static String[] getProjectRepositorys(URL bitbucketUrl, String username, String password, String projectKey){
 
     JsonSlurper jsonSlurper = new JsonSlurper();
-    URL url = new URL(bitbucketUrl, "/rest/api/latest/projects/${projectKey}/repos");
+    URL url = new URL(bitbucketUrl, "/rest/api/latest/projects/${projectKey}/repos?limit=100");
     def auth = "${username}:${password}".bytes.encodeBase64().toString();
     List<String> repositoryList = [];
 
