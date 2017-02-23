@@ -52,7 +52,7 @@ public class BitbucketSCMProvider implements SCMProvider {
       BitbucketSCMProtocol.isProtocolSupported(this.bitbucketProtocol);
 
       EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
-      String filePath =  envVarProperty.getProperty("WORKSPACE")+ "/" +envVarProperty.getProperty("SCM_KEY")
+      String filePath =  envVarProperty.getProperty("WORKSPACE")+ "@tmp/secretFiles/" +envVarProperty.getProperty("SCM_KEY")
       Properties fileProperties = HelperUtils.getFileProperties(filePath)
       this.bitbucketUsername = fileProperties.getProperty("SCM_USERNAME");
       this.bitbucketPassword = fileProperties.getProperty("SCM_PASSWORD");
