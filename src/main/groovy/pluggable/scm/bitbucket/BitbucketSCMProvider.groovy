@@ -55,7 +55,7 @@ public class BitbucketSCMProvider implements SCMProvider {
   /**
   * Return Bitbucket SCM URL.
   * @return SCM url for the provider.
-  *     e.g. Bitbucket-SSH  ssh://jenkins@10.0.0.0:22/
+  *     e.g. Bitbucket-SSH  ssh://git@10.0.0.0:22/
   *          Bitbucket-HTTP http://10.0.0.0:80/scm/
   *          Bitbucket-HTTPS http://10.0.0.0:443/scm/
   *
