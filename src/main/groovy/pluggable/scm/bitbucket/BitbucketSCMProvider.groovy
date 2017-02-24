@@ -91,7 +91,7 @@ public class BitbucketSCMProvider implements SCMProvider {
 
           url.append(this.scmProtocol);
           url.append("://");
-
+          def encodedPassword = URLEncoder.encode(password)
           switch(this.scmProtocol){
             case BitbucketSCMProtocol.SSH:
               url.append("git@");
@@ -101,7 +101,7 @@ public class BitbucketSCMProvider implements SCMProvider {
                 if(username != null && password != null){
                     url.append(username);
                     url.append(":");
-                    url.append(password);
+                    url.append(encodedPassword);
                     url.append("@");
                 }
               break;
