@@ -22,7 +22,7 @@ public class BitbucketRequestUtil {
 
     switch (http.getResponseCode()) {
       case 200:
-        Logger.info("Project ${projectKey} found all good!");
+        Logger.info("Project ${projectKey} found.");
         break;
       case 401:
         Logger.log(LogLevel.ERROR, "Credentials are invalid.");

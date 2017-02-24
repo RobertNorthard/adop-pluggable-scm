@@ -21,8 +21,8 @@ public class BitbucketSCMProvider implements SCMProvider {
   private final String bitbucketEndpointContext;
   private final int bitbucketPort;
   private final BitbucketSCMProtocol bitbucketProtocol;
-  private final String bitbucketUsername;
-  private final String bitbucketPassword;
+  private String bitbucketUsername;
+  private String bitbucketPassword;
 
   /**
   * Constructor for class BitbucketSCMProvider.
@@ -50,81 +50,62 @@ public class BitbucketSCMProvider implements SCMProvider {
 
       // If not it will thorw IllegalArgumentException.
       BitbucketSCMProtocol.isProtocolSupported(this.bitbucketProtocol);
-
-      EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
-      String filePath =  envVarProperty.getProperty("WORKSPACE")+ "@tmp/secretFiles/" +envVarProperty.getProperty("SCM_KEY")
-      Properties fileProperties = HelperUtils.getFileProperties(filePath)
-      this.bitbucketUsername = fileProperties.getProperty("SCM_USERNAME");
-      this.bitbucketPassword = fileProperties.getProperty("SCM_PASSWORD");
   }
 
-    /**
-     * Return Bitbucket SCM URL.
-     * @return SCM url for the provider.
-     *     e.g. Bitbucket-SSH  ssh://jenkins@10.0.0.0:22/
-     *          Bitbucket-HTTP http://10.0.0.0:80/scm/
-     *          Bitbucket-HTTPS http://10.0.0.0:443/scm/
-     *
-     * @throws IllegalArgumentException
-     *           If the SCM protocol type is not supported.
-     **/
+  /**
+  * Return Bitbucket SCM URL.
+  * @return SCM url for the provider.
+  *     e.g. Bitbucket-SSH  ssh://jenkins@10.0.0.0:22/
+  *          Bitbucket-HTTP http://10.0.0.0:80/scm/
+  *          Bitbucket-HTTPS http://10.0.0.0:443/scm/
+  *
+  * @throws IllegalArgumentException
+  *           If the SCM protocol type is not supported.
+  **/
+  public String getScmUrl(){
 
-      public String getScmUrl(){
-          return this.getScmUrl(null, null);
+      StringBuffer url = new StringBuffer("")
+
+      url.append(this.scmProtocol);
+      url.append("://");
+      switch(this.scmProtocol){
+        case BitbucketSCMProtocol.SSH:
+          url.append("git@");
+          break;
+        case BitbucketSCMProtocol.HTTP:
+        case BitbucketSCMProtocol.HTTPS:
+          break;
+        default:
+          throw new IllegalArgumentException("SCM Protocol type not supported.");
+          break;
       }
 
-      /**
-      * Return Bitbucket SCM URL.
-      * @param String username
-      * @param String password
-      * @return SCM url for the provider.
-      *     e.g. Bitbucket-SSH  ssh://jenkins@10.0.0.0:22/
-      *          Bitbucket-HTTP http://10.0.0.0:80/scm/
-      *          Bitbucket-HTTPS http://10.0.0.0:443/scm/
-      *
-      * @throws IllegalArgumentException
-      *           If the SCM protocol type is not supported.
-      **/
-      public String getScmUrl(String username, String password){
+      url.append(this.bitbucketEndpoint);
+      url.append(":");
+      url.append(this.scmPort);
+      url.append(this.bitbucketEndpointContext);
 
-          StringBuffer url = new StringBuffer("")
-
-          url.append(this.scmProtocol);
-          url.append("://");
-          def encodedPassword = URLEncoder.encode(password)
-          switch(this.scmProtocol){
-            case BitbucketSCMProtocol.SSH:
-              url.append("git@");
-              break;
-            case BitbucketSCMProtocol.HTTP:
-            case BitbucketSCMProtocol.HTTPS:
-                if(username != null && password != null){
-                    url.append(username);
-                    url.append(":");
-                    url.append(encodedPassword);
-                    url.append("@");
-                }
-              break;
-            default:
-              throw new IllegalArgumentException("SCM Protocol type not supported.");
-              break;
-          }
-
-          url.append(this.bitbucketEndpoint);
-          url.append(":");
-          url.append(this.scmPort);
-          url.append(this.bitbucketEndpointContext);
-          if(this.bitbucketEndpoint.endsWith('/')){
-            url.append("/")
-          }
-          if((this.scmProtocol == BitbucketSCMProtocol.HTTP) ||
-             (this.scmProtocol == BitbucketSCMProtocol.HTTPS)
-          ){
-            url.append("scm/");
-          }
-
-          return url;
+      if(!this.bitbucketEndpointContext.endsWith("/")){
+        url.append("/")
       }
+
+      if((this.scmProtocol == BitbucketSCMProtocol.HTTP) ||
+         (this.scmProtocol == BitbucketSCMProtocol.HTTPS)
+      ){
+        url.append("scm/");
+      }
+
+      return url;
+  }
+
+  /**
+  * Return a url encoded value
+  * @param value string to encode.
+  * @return a url encoded value.
+  */
+  private String urlEncode(String value){
+      return URLEncoder.encode(value)
+  }
 
   /**
   * Creates relevant repositories defined by your cartridge in your chosen SCM provider
@@ -133,7 +114,15 @@ public class BitbucketSCMProvider implements SCMProvider {
   * @parma overwriteRepos
   **/
   public void createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos) {
-    URL bitbucketUrl = new URL(this.bitbucketProtocol.toString(), this.bitbucketEndpoint, this.bitbucketPort, this.bitbucketEndpointContext);
+
+    EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
+    String filePath =  envVarProperty.getProperty("WORKSPACE")+ "@tmp/secretFiles/" +envVarProperty.getProperty("SCM_KEY")
+    Properties fileProperties = PropertyUtils.getFileProperties(filePath)
+
+    this.bitbucketUsername = fileProperties.getProperty("SCM_USERNAME");
+    this.bitbucketPassword = fileProperties.getProperty("SCM_PASSWORD");
+
+    URL bitbucketUrl = new URL(BitbucketSCMProtocol.HTTPS.toString(), this.bitbucketEndpoint, this.bitbucketPort, this.bitbucketEndpointContext);
 
     BitbucketRequestUtil.isProjectAvailable(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace);
 
@@ -141,7 +130,6 @@ public class BitbucketSCMProvider implements SCMProvider {
 
     String cartHome = "/cartridge"
     String urlsFile = workspace + cartHome + "/src/urls.txt"
-    EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
 
     // Create repositories
     String command1 = "cat " + urlsFile
@@ -161,31 +149,26 @@ public class BitbucketSCMProvider implements SCMProvider {
              break
           }
         }
-        // If not, create it
+
         if (repo_exists == 0) {
           BitbucketRequestUtil.createRepository(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace, repoName);
         } else{
-          Logger.info("Repository already exists, skipping create: : " + target_repo_name);
+          Logger.info("Repository already exists, skipping create: " + target_repo_name);
         }
 
         // Populate repository
         String tempDir = workspace + "/tmp"
 
-        def gitSsh = new File (tempDir + '/git_ssh.sh')
         def tempScript = new File(tempDir + '/shell_script.sh')
 
-        gitSsh << "#!/bin/sh\n"
-        gitSsh << "exec ssh -i " + envVarProperty.getSshPrivateKeyPath() + " -o StrictHostKeyChecking=no \"\$@\""
-
-        tempScript << "export GIT_SSH=\""+ tempDir + "/git_ssh.sh\"\n"
-        tempScript << "git clone " + this.getScmUrl(this.bitbucketUsername, this.bitbucketPassword) + repoNamespace + "/" + repoName + ".git " + tempDir + "/" + repoName + "\n"
+        tempScript << "git clone " + BitbucketSCMProtocol.HTTPS.toString() + "://" + this.bitbucketUsername + ":" + this.urlEncode(this.bitbucketPassword) + "@" + this.bitbucketEndpoint + "/scm/" + repoNamespace + "/" + repoName + ".git " + tempDir + "/" + repoName + "\n"
         def gitDir = "--git-dir=" + tempDir + "/" + repoName + "/.git"
         tempScript << "git " + gitDir + " remote add source " + repo + "\n"
         tempScript << "git " + gitDir + " fetch source" + "\n"
 
         if (overwriteRepos == "true"){
           tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*\n"
-          Logger.info("Repository already exists, overwriting: : " + target_repo_name);
+          Logger.info("Repository already exists, overwriting: " + target_repo_name);
         } else {
           tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*\n"
         }
@@ -194,8 +177,6 @@ public class BitbucketSCMProvider implements SCMProvider {
         com.executeCommand('chmod +x ' + tempDir + '/shell_script.sh')
         com.executeCommand(tempDir + '/shell_script.sh')
 
-        // delete temp scripts.
-        gitSsh.delete()
         tempScript.delete()
     }
   }
@@ -216,7 +197,7 @@ public class BitbucketSCMProvider implements SCMProvider {
         return {
             git extras >> {
               remote{
-                url(this.getScmUrl() + projectName + "/" + repoName)
+                url(this.getScmUrl() + projectName + "/" + repoName + ".git")
                 credentials(credentialId)
               }
               branch(branchName)
