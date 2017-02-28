@@ -32,7 +32,7 @@ public class BitbucketSCMProviderFactory implements SCMProviderFactory {
             scmPort,
             BitbucketSCMProtocol.valueOf(this.validateProperties("scm.protocol", scmProtocol.toUpperCase())),
             this.validateProperties("bitbucket.endpoint", bitbucketEndpoint),
-            this.validateBitbucketEndpoint(bitbucketEndpointContext),
+            bitbucketEndpointContext,
             BitbucketSCMProtocol.valueOf(this.validateProperties("bitbucket.protocol", bitbucketProtocol.toUpperCase())),
             bitbucketPort
     );
@@ -44,21 +44,12 @@ public class BitbucketSCMProviderFactory implements SCMProviderFactory {
   * @param value
   * @return Valid value
   * @throw IllegalArgumentException
-  *           If the value ir null or empty without those params scrpts can't work.
+  *           If the value ir null or empty without those params scripts can't work.
   */
   public String validateProperties(String key, String value){
     if(value == null || value.equals("")){
         throw new IllegalArgumentException("Please make sure " + key + " exist and have valid value.");
     }
     return value;
-  }
-
-  /**
-  * Set default endpoint if can't find in properties file.
-  * @param endpoint bitbucket host endpoint.
-  * @return default value / or endpoint from properties file.
-  */
-  public String validateBitbucketEndpoint(String endpoint){
-      return ((endpoint == null || endpoint.equals("")) ? "/" :  "/" + endpoint);
   }
 }
