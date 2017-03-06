@@ -1,0 +1,6 @@
+loader.id=adop-bitbucket
+loader.credentialId=bitbucket-https-credential
+bitbucket.endpoint=bitbucket.example.com
+bitbucket.endpoint.context=/
+bitbucket.port=443
+bitbucket.protocol=https
