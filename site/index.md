@@ -1,6 +1,6 @@
 ---
 layout: docs
-title: Welcome
+title: Accenture DevOps Platform Pluggable SCM Library
 ---
-Here you will find all the information about ADOP Pluggable SCM
 
+The Accenture DevOps Platform Pluggable SCM library enables cartridge developers to develop version control system independent cartridges.
