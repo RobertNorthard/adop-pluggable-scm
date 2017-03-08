@@ -115,17 +115,6 @@ public class BitbucketSCMProvider implements SCMProvider {
   **/
   public void createScmRepos(String workspace, String repoNamespace, String codeReviewEnabled, String overwriteRepos) {
 
-    EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
-    String filePath =  envVarProperty.getProperty("WORKSPACE")+ "@tmp/secretFiles/" +envVarProperty.getProperty("SCM_KEY")
-    Properties fileProperties = PropertyUtils.getFileProperties(filePath)
-
-    this.bitbucketUsername = fileProperties.getProperty("SCM_USERNAME");
-    this.bitbucketPassword = fileProperties.getProperty("SCM_PASSWORD");
-
-    URL bitbucketUrl = new URL(BitbucketSCMProtocol.HTTPS.toString(), this.bitbucketEndpoint, this.bitbucketPort, this.bitbucketEndpointContext);
-
-    BitbucketRequestUtil.isProjectAvailable(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace);
-
     ExecuteShellCommand com = new ExecuteShellCommand()
 
     String cartHome = "/cartridge"
@@ -136,48 +125,70 @@ public class BitbucketSCMProvider implements SCMProvider {
     List<String> repoList = new ArrayList<String>();
     repoList = (com.executeCommand(command1).split("\\r?\\n"));
 
-    for(String repo: repoList) {
-        String repoName = repo.substring(repo.lastIndexOf("/") + 1, repo.indexOf(".git"));
-        String target_repo_name = repoNamespace + "/" + repoName
-        int repo_exists=0;
+    // remove null or empty lines
+    repoList.removeAll(Arrays.asList(null,""))
 
-        List<String> bitbucketRepoList = BitbucketRequestUtil.getProjectRepositorys(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace);
-        for(String bitbucketRepo: bitbucketRepoList) {
-          if(bitbucketRepo.trim().contains(repoName)) {
-             Logger.info("Found: " + target_repo_name);
-             repo_exists=1
-             break
+    if(!repoList.isEmpty()){
+
+      EnvVarProperty envVarProperty = EnvVarProperty.getInstance();
+      String filePath =  envVarProperty.getProperty("WORKSPACE")+ "@tmp/secretFiles/" +envVarProperty.getProperty("SCM_KEY")
+      Properties fileProperties = PropertyUtils.getFileProperties(filePath)
+
+      this.bitbucketUsername = fileProperties.getProperty("SCM_USERNAME");
+      this.bitbucketPassword = fileProperties.getProperty("SCM_PASSWORD");
+
+      URL bitbucketUrl = new URL(BitbucketSCMProtocol.HTTPS.toString(), this.bitbucketEndpoint, this.bitbucketPort, this.bitbucketEndpointContext);
+
+      BitbucketRequestUtil.isProjectAvailable(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace);
+
+      for(String repo: repoList) {
+          // check if empty line
+          if(repo.equals("")){
+            break;
           }
-        }
 
-        if (repo_exists == 0) {
-          BitbucketRequestUtil.createRepository(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace, repoName);
-        } else{
-          Logger.info("Repository already exists, skipping create: " + target_repo_name);
-        }
+          String repoName = repo.substring(repo.lastIndexOf("/") + 1, repo.indexOf(".git"));
+          String target_repo_name = repoNamespace + "/" + repoName
+          int repo_exists=0;
 
-        // Populate repository
-        String tempDir = workspace + "/tmp"
+          List<String> bitbucketRepoList = BitbucketRequestUtil.getProjectRepositorys(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace);
+          for(String bitbucketRepo: bitbucketRepoList) {
+            if(bitbucketRepo.trim().contains(repoName)) {
+               Logger.info("Found: " + target_repo_name);
+               repo_exists=1
+               break
+            }
+          }
 
-        def tempScript = new File(tempDir + '/shell_script.sh')
+          if (repo_exists == 0) {
+            BitbucketRequestUtil.createRepository(bitbucketUrl, this.bitbucketUsername, this.bitbucketPassword, repoNamespace, repoName);
+          } else{
+            Logger.info("Repository already exists, skipping create: " + target_repo_name);
+          }
 
-        tempScript << "git clone " + BitbucketSCMProtocol.HTTPS.toString() + "://" + this.bitbucketUsername + ":" + this.urlEncode(this.bitbucketPassword) + "@" + this.bitbucketEndpoint + "/scm/" + repoNamespace + "/" + repoName + ".git " + tempDir + "/" + repoName + "\n"
-        def gitDir = "--git-dir=" + tempDir + "/" + repoName + "/.git"
-        tempScript << "git " + gitDir + " remote add source " + repo + "\n"
-        tempScript << "git " + gitDir + " fetch source" + "\n"
+          // Populate repository
+          String tempDir = workspace + "/tmp"
 
-        if (overwriteRepos == "true"){
-          tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*\n"
-          Logger.info("Repository already exists, overwriting: " + target_repo_name);
-        } else {
-          tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*\n"
-        }
+          def tempScript = new File(tempDir + '/shell_script.sh')
 
-        com.executeCommand('chmod +x ' + tempDir + '/git_ssh.sh')
-        com.executeCommand('chmod +x ' + tempDir + '/shell_script.sh')
-        com.executeCommand(tempDir + '/shell_script.sh')
+          tempScript << "git clone " + BitbucketSCMProtocol.HTTPS.toString() + "://" + this.bitbucketUsername + ":" + this.urlEncode(this.bitbucketPassword) + "@" + this.bitbucketEndpoint + "/scm/" + repoNamespace + "/" + repoName + ".git " + tempDir + "/" + repoName + "\n"
+          def gitDir = "--git-dir=" + tempDir + "/" + repoName + "/.git"
+          tempScript << "git " + gitDir + " remote add source " + repo + "\n"
+          tempScript << "git " + gitDir + " fetch source" + "\n"
 
-        tempScript.delete()
+          if (overwriteRepos == "true"){
+            tempScript << "git " + gitDir + " push origin +refs/remotes/source/*:refs/heads/*\n"
+            Logger.info("Repository already exists, overwriting: " + target_repo_name);
+          } else {
+            tempScript << "git " + gitDir + " push origin refs/remotes/source/*:refs/heads/*\n"
+          }
+
+          com.executeCommand('chmod +x ' + tempDir + '/git_ssh.sh')
+          com.executeCommand('chmod +x ' + tempDir + '/shell_script.sh')
+          com.executeCommand(tempDir + '/shell_script.sh')
+
+          tempScript.delete()
+      }
     }
   }
 

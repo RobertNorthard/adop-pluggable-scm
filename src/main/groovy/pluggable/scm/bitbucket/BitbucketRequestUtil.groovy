@@ -28,7 +28,7 @@ public class BitbucketRequestUtil {
         Logger.log(LogLevel.ERROR, "Credentials are invalid.");
         break;
       case {it > 401}:
-        throw new IOException("Project doesn't exist or host not available!");
+        throw new IOException("BitBucket project with key: " + projectKey + " does not exist or BitBucket is not available!");
         break;
     }
   }
@@ -79,7 +79,7 @@ public class BitbucketRequestUtil {
     http.setRequestMethod("POST");
     http.setDoOutput(true);
     http.setInstanceFollowRedirects(false);
-    http.setRequestProperty ("Authorization", "Basic ${auth}");
+    http.setRequestProperty("Authorization", "Basic ${auth}");
     http.setRequestProperty("Content-Type", "application/json");
     http.setRequestProperty("charset", "utf-8");
     http.setRequestProperty("Content-Length", postData.length.toString());
