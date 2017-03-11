@@ -166,6 +166,11 @@ public class EnvVarProperty {
   * @return STDOUT logger.
   */
   public PrintStream getLogger(){
+
+    if (!this.hasProperty("out")){
+      return null;
+    }
+
     return this.bindings.out;
   }
 

@@ -1,5 +1,11 @@
 package pluggable.scm.helpers;
 
+import pluggable.scm.helpers.Logger;
+import pluggable.scm.helpers.LogLevel;
+
+import  java.util.regex.Matcher;
+import  java.util.regex.Pattern;
+
 /**
 * Helper class to convert string input into executable bash commands.
 */
@@ -17,26 +23,44 @@ public class ExecuteShellCommand {
         throw new IllegalArgumentException("A command must be provided.")
       }
 
+      // commands may contain username/passwords.
+      Logger.info(sanitizeCommand(command));
+
       StringBuffer output = new StringBuffer();
-      Process p = null;
-
+      Process process = null;
+      String result = "";
       try {
-          p = Runtime.getRuntime().exec(command);
-          p.waitFor();
+          process = Runtime.getRuntime().exec(command);
+          process.waitForProcessOutput(output, output);
+          result = output.toString();
 
-          BufferedReader reader =
-              new BufferedReader(
-                new InputStreamReader(p.getInputStream()));
+          Logger.log(result);
 
-          String line = "";
-
-          while ((line = reader.readLine()) != null) {
-              output.append(line + "\n");
+          if(process.exitValue() != 0){
+            Logger.error("Command executed with: " + process.exitValue());
           }
-      } catch (Exception ex) {
-          throw ex;
+      } catch (Exception exception) {
+          Logger.error(exception.getMessage());
       }
 
-      return output.toString();
+      return result;
+  }
+
+  /**
+  * Return a logger friendy version of a command.
+  *
+  * @param command command to sanitize (e.g. remove username/passwords)
+  * @return a logger friendly command.
+  */
+  public String sanitizeCommand(String command){
+    Pattern pattern = Pattern.compile("\\w{1,}:\\w{1,}");
+    Matcher matcher = pattern.matcher(command);
+    String sanitizedOutput = command;
+    while(matcher.find()){
+      String sensitiveInput = matcher.group()
+      sanitizedOutput = sanitizedOutput.replaceAll(sensitiveInput, "******");
+    }
+
+    return sanitizedOutput;
   }
 }
